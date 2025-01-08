@@ -1,8 +1,8 @@
 #pragma once
 
-#include "type.hpp"
-#include "type_var.hpp"
-#include "known_protocol_kind.hpp"
+#include "Type.hpp"
+#include "KnownProtocolKind.hpp"
+#include "TypeVar.hpp"
 
 #include <optional>
 
@@ -49,23 +49,23 @@ namespace typecheck {
 		public:
 			Types();
 			Types(const Types& other);
-			Types& operator=(const Types& other);
+			auto operator=(const Types& other) -> Types&;
 			Types(Types&& other) noexcept;
-			Types& operator=(Types&& other) noexcept;
+			auto operator=(Types&& other) noexcept -> Types&;
 
-			bool has_first() const;
-			const TypeVar& first() const;
-			TypeVar* mutable_first();
+			auto has_first() const -> bool;
+			auto first() const -> const TypeVar&;
+			auto mutable_first() -> TypeVar*;
 
-			bool has_second() const;
-			const TypeVar& second() const;
-			TypeVar* mutable_second();
+			auto has_second() const -> bool;
+			auto second() const -> const TypeVar&;
+			auto mutable_second() -> TypeVar*;
 
-			bool has_third() const;
-			const TypeVar& third() const;
-			TypeVar* mutable_third();
+			auto has_third() const -> bool;
+			auto third() const -> const TypeVar&;
+			auto mutable_third() -> TypeVar*;
 
-			std::string ShortDebugString() const;
+			auto ShortDebugString() const -> std::string;
 
 		private:
 			mutable std::optional<TypeVar> _first;
@@ -78,17 +78,17 @@ namespace typecheck {
 			ExplicitType();
 			ExplicitType(const ExplicitType& other);
 			ExplicitType(ExplicitType&& other) noexcept;
-			ExplicitType& operator=(ExplicitType&& other) noexcept;
+			auto operator=(ExplicitType&& other) noexcept -> ExplicitType&;
 
-			bool has_type() const;
-			Type* mutable_type();
-			const Type& type() const;
+			auto has_type() const -> bool;
+			auto mutable_type() -> Type*;
+			auto type() const -> const Type&;
 
-			bool has_var() const;
-			TypeVar* mutable_var();
-			const TypeVar& var() const;
+			auto has_var() const -> bool;
+			auto mutable_var() -> TypeVar*;
+			auto var() const -> const TypeVar&;
 
-			std::string ShortDebugString() const;
+			auto ShortDebugString() const -> std::string;
 
 		private:
 			mutable std::optional<TypeVar> _var;
@@ -97,10 +97,10 @@ namespace typecheck {
 
 		class Member {
 		public:
-			const TypeVar& first() const;
-			const TypeVar& second() const;
+			[[nodiscard]] auto first() const -> const TypeVar&;
+			[[nodiscard]] auto second() const -> const TypeVar&;
 
-			std::string ShortDebugString() const;
+			[[nodiscard]] auto ShortDebugString() const -> std::string;
 
 		private:
 			TypeVar _first;
@@ -114,25 +114,25 @@ namespace typecheck {
 		public:
 			Overload();
 			Overload(const Overload& other);
-			Overload& operator=(const Overload& other);
+			auto operator=(const Overload& other) -> Overload&;
 			Overload(Overload&& other) noexcept;
-			Overload& operator=(Overload&& other) noexcept;
+			auto operator=(Overload&& other) noexcept -> Overload&;
 
-			long long functionid() const;
-			void set_functionid(const long long functionid);
+			auto functionid() const -> long long;
+			void set_functionid(long long functionid);
 
-			std::size_t argvars_size() const;
-			const TypeVar& argvars(std::size_t i) const;
-			TypeVar* add_argvars();
+			auto argvars_size() const -> std::size_t;
+			auto argvars(std::size_t i) const -> const TypeVar&;
+			auto add_argvars() -> TypeVar*;
 
-			bool has_type() const;
-			const TypeVar& type() const;
-			TypeVar* mutable_type();
+			auto has_type() const -> bool;
+			auto type() const -> const TypeVar&;
+			auto mutable_type() -> TypeVar*;
 
-			const TypeVar& returnvar() const;
-			TypeVar* mutable_returnvar();
+			auto returnvar() const -> const TypeVar&;
+			auto mutable_returnvar() -> TypeVar*;
 
-			std::string ShortDebugString() const;
+			auto ShortDebugString() const -> std::string;
 
 		private:
 			mutable std::optional<TypeVar> _type;
@@ -148,49 +148,49 @@ namespace typecheck {
 		public:
 			Conforms();
 			Conforms(const Conforms& other);
-			Conforms& operator=(const Conforms& other);
+			auto operator=(const Conforms& other) -> Conforms&;
 			Conforms(Conforms&& other) noexcept;
-			Conforms& operator=(Conforms&& other) noexcept;
+			auto operator=(Conforms&& other) noexcept -> Conforms&;
 
-			bool has_protocol() const;
-			const KnownProtocolKind& protocol() const;
-			KnownProtocolKind* mutable_protocol();
+			auto has_protocol() const -> bool;
+			auto protocol() const -> const KnownProtocolKind&;
+			auto mutable_protocol() -> KnownProtocolKind*;
 
-			bool has_type() const;
-			const TypeVar& type() const;
-			TypeVar* mutable_type();
-			std::string ShortDebugString() const;
+			auto has_type() const -> bool;
+			auto type() const -> const TypeVar&;
+			auto mutable_type() -> TypeVar*;
+			auto ShortDebugString() const -> std::string;
 		private:
 			mutable std::optional<KnownProtocolKind> _protocol;
 			mutable std::optional<TypeVar> _type;
 		};
 
 		Constraint();
-		bool operator==(const Constraint& other) const;
+		auto operator==(const Constraint& other) const -> bool;
 
-		IDType id() const;
-		void set_id(const IDType id);
+		auto id() const -> IDType;
+		void set_id(IDType id);
 
-		const ConstraintKind& kind() const;
+		auto kind() const -> const ConstraintKind&;
 		void set_kind(const ConstraintKind& kind);
 
-		bool has_explicit_() const;
-		ExplicitType* mutable_explicit_();
-		const ExplicitType& explicit_() const;
+		auto has_explicit() const -> bool;
+		auto mutable_explicit() -> ExplicitType*;
+		auto explicit_() const -> const ExplicitType&;
 
-		bool has_overload() const;
-		Overload* mutable_overload();
-		const Overload& overload() const;
+		auto has_overload() const -> bool;
+		auto mutable_overload() -> Overload*;
+		auto overload() const -> const Overload&;
 
-		bool has_conforms() const;
-		Conforms* mutable_conforms();
-		const Conforms& conforms() const;
+		auto has_conforms() const -> bool;
+		auto mutable_conforms() -> Conforms*;
+		auto conforms() const -> const Conforms&;
 
-		bool has_types() const;
-		Types* mutable_types();
-		const Types& types() const;
+		auto has_types() const -> bool;
+		auto mutable_types() -> Types*;
+		auto types() const -> const Types&;
 
-		std::string ShortDebugString() const;
+		auto ShortDebugString() const -> std::string;
 	private:
 		ConstraintKind _kind;
 		/*

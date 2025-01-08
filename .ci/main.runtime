@@ -1,0 +1,7 @@
+return cirunner.v1.cpp.cmake.autoconfig(
+  testTargets: ["typecheckTests"],
+  fuzzingTargets: [],
+  benchmarkTargets: [],
+  otherCompilers: [],
+  otherCMakeOptions: ["TYPECHECK_ENABLE_ASAN=ON", "TYPECHECK_ENABLE_UBSAN=ON", "TYPECHECK_ENABLE_THREAD=ON", "TYPECHECK_ENABLE_LEAK=ON", "TYPECHECK_ENABLE_CLANG_TIDY=ON"]
+)

@@ -1,0 +1,15 @@
+[submodule "third_party/constraint"]
+	path = third_party/constraint
+	url = https://github.com/mratedca/constraint
+[submodule "third_party/cppnotstdlib"]
+	path = third_party/cppnotstdlib
+	url = https://github.com/mratedca/cppnotstdlib
+[submodule "third_party/cpptest"]
+	path = third_party/cpptest
+	url = https://github.com/mratedca/cpptest
+[submodule "third_party/magic_enum"]
+	path = third_party/magic_enum
+	url = https://github.com/Neargye/magic_enum
+[submodule "third_party/fmt"]
+	path = third_party/fmt
+	url = https://github.com/fmtlib/fmt

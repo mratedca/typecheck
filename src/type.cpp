@@ -1,21 +1,20 @@
-#include <typecheck/type.hpp>
-#include <typecheck/raw_type.hpp>
-#include <typecheck/function_definition.hpp>
+#include "typecheck/Type.hpp"
+#include "typecheck/FunctionDefinition.hpp"
+#include "typecheck/RawType.hpp"
 
-#include <variant>
 #include <iostream>
+#include <sstream>
+#include <variant>
 
-using namespace typecheck;
+typecheck::Type::Type() : data(false) {}
 
-Type::Type() : data(false) {}
+typecheck::Type::Type(const RawType& r) : data(r) {}
 
-Type::Type(const RawType& r) : data(r) {}
+typecheck::Type::Type(const FunctionDefinition& f) : data(f) {}
 
-Type::Type(const FunctionDefinition& f) : data(f) {}
+typecheck::Type::Type(const Type& other)  = default;
 
-Type::Type(const Type& other)  = default;
-
-auto Type::operator=(const Type& other) -> Type& {
+auto typecheck::Type::operator=(const Type& other) -> Type& {
 	if (this == &other) {
 		return *this;
 	}
@@ -24,9 +23,9 @@ auto Type::operator=(const Type& other) -> Type& {
 	return *this;
 }
 
-Type::Type(Type&& other) noexcept : data(std::move(other.data)) {}
+typecheck::Type::Type(Type&& other) noexcept : data(std::move(other.data)) {}
 
-auto Type::operator=(Type&& other) noexcept -> Type& {
+auto typecheck::Type::operator=(Type&& other) noexcept -> Type& {
 	if (this == &other) {
 		return *this;
 	}
@@ -36,17 +35,19 @@ auto Type::operator=(Type&& other) noexcept -> Type& {
 	return *this;
 }
 
-auto Type::operator==(const Type& other) const noexcept -> bool {
+auto typecheck::Type::operator==(const Type& other) const noexcept -> bool {
 	if (this->has_raw() && other.has_raw()) {
 		return this->raw() == other.raw();
-	} else if (this->has_func() && other.has_func()) {
-		return this->func() == other.func();
-	} else {
-		return !this->has_raw() && !other.has_raw() && !this->has_func() && !other.has_func();
 	}
+
+	if (this->has_func() && other.has_func()) {
+		return this->func() == other.func();
+	}
+
+	return !this->has_raw() && !other.has_raw() && !this->has_func() && !other.has_func();
 }
 
-auto Type::CopyFrom(const Type& other) -> Type& {
+auto typecheck::Type::CopyFrom(const Type& other) -> Type& {
 	if (this == &other) {
 		return *this;
 	}
@@ -62,51 +63,51 @@ auto Type::CopyFrom(const Type& other) -> Type& {
 	return *this;
 }
 
-auto Type::has_raw() const -> bool {
+auto typecheck::Type::has_raw() const -> bool {
 	return std::holds_alternative<RawType>(this->data);
 }
 
-auto Type::has_func() const -> bool {
+auto typecheck::Type::has_func() const -> bool {
 	return std::holds_alternative<FunctionDefinition>(this->data);
 }
 
-auto Type::mutable_raw() -> RawType* {
+auto typecheck::Type::mutable_raw() -> RawType* {
 	if (!this->has_raw()) {
 		this->data = RawType{};
 	}
 	return std::get_if<RawType>(&this->data);
 }
 
-auto Type::raw() const -> const RawType& {
+auto typecheck::Type::raw() const -> const RawType& {
 	if (!this->has_raw()) {
 		this->data = RawType{};
 	}
 	return std::get<RawType>(this->data);
 }
 
-auto Type::mutable_func() -> FunctionDefinition* {
+auto typecheck::Type::mutable_func() -> FunctionDefinition* {
 	if (!this->has_func()) {
 		this->data = FunctionDefinition{};
 	}
 	return std::get_if<FunctionDefinition>(&this->data);
 }
 
-auto Type::func() const -> const FunctionDefinition& {
+auto typecheck::Type::func() const -> const FunctionDefinition& {
 	if (!this->has_func()) {
 		this->data = FunctionDefinition{};
 	}
 	return std::get<FunctionDefinition>(this->data);
 }
 
-auto Type::ShortDebugString() const -> std::string {
-	std::string out;
-	out += "{ ";
+auto typecheck::Type::ShortDebugString() const -> std::string {
+	std::stringstream out;
+	out << "{ ";
 	if (this->has_raw()) {
-		out += "\"raw\": " + this->raw().ShortDebugString() + (this->has_func() ? ", " : " ");
+		out << "\"raw\": " << this->raw().ShortDebugString() << (this->has_func() ? ", " : " ");
 	}
 	if (this->has_func()) {
-		out += "\"func\": " + this->func().ShortDebugString() + " ";
+		out << "\"func\": " << this->func().ShortDebugString() << " ";
 	}
-	out += "}";
-	return out;
+	out << "}";
+	return out.str();
 }

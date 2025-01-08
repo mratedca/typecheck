@@ -1,7 +1,7 @@
 #pragma once
 
-#include "raw_type.hpp"
-#include "function_definition.hpp"
+#include "RawType.hpp"
+#include "FunctionDefinition.hpp"
 
 #include <variant>
 
@@ -14,24 +14,24 @@ namespace typecheck {
 		~Type() = default;
 
 		Type(const Type& other);
-		Type& operator=(const Type& other);
+		auto operator=(const Type& other) -> Type&;
 		Type(Type&& other) noexcept;
-		Type& operator=(Type&& other) noexcept;
+		auto operator=(Type&& other) noexcept -> Type&;
 
-		bool operator==(const Type& other) const noexcept;
+		auto operator==(const Type& other) const noexcept -> bool;
 
-		Type& CopyFrom(const Type& other);
+		auto CopyFrom(const Type& other) -> Type&;
 
-		bool has_raw() const;
-		bool has_func() const;
+		auto has_raw() const -> bool;
+		auto has_func() const -> bool;
 
-		RawType* mutable_raw();
-		const RawType& raw() const;
+		auto mutable_raw() -> RawType*;
+		auto raw() const -> const RawType&;
 
-		FunctionDefinition* mutable_func();
-		const FunctionDefinition& func() const;
+		auto mutable_func() -> FunctionDefinition*;
+		auto func() const -> const FunctionDefinition&;
 
-		std::string ShortDebugString() const;
+		auto ShortDebugString() const -> std::string;
 	private:
 		// Variant defaults to the first type
 		mutable std::variant<bool, RawType, FunctionDefinition> data;

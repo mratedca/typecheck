@@ -1,14 +1,14 @@
 #pragma once
 
-#include "typecheck/literal_protocol.hpp"
+#include "../LiteralProtocol.hpp"
 
 namespace typecheck {
-	class ExpressibleByIntegerLiteral : public LiteralProtocol {
+	class ExpressibleByIntegerLiteral final : public LiteralProtocol {
 	public:
-		ExpressibleByIntegerLiteral() : LiteralProtocol() {}
-		virtual ~ExpressibleByIntegerLiteral() = default;
+		ExpressibleByIntegerLiteral() noexcept = default;
+		~ExpressibleByIntegerLiteral() noexcept override = default;
 
-		std::vector<Type> getPreferredTypes() const noexcept override;
-		std::vector<Type> getOtherTypes() const noexcept override;
+		[[nodiscard]] auto getPreferredTypes() const noexcept -> std::vector<Type> override;
+		[[nodiscard]] auto getOtherTypes() const noexcept -> std::vector<Type> override;
 	};
 }

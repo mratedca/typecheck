@@ -14,18 +14,17 @@ if (TYPECHECK_ENABLE_COVERAGE)
 	# Only require lcov if code coverage enabled
 	include(cmake/CodeCoverage.cmake)
 	set(TYPECHECK_LCOV_ARGS -q --rc lcov_branch_coverage=1 --no-external)
-	set(COVERAGE_EXCLUDES "_deps/*" "typecheck_protos/*" "${CMAKE_CURRENT_BINARY_DIR}/_deps/*" ${CMAKE_CURRENT_BINARY_DIR}/typecheck_protos/*)
     set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Set the build type." FORCE)
 
 	append_coverage_compiler_flags()
 endif()
 
-if (ENABLE_ASAN)
+if (TYPECHECK_ENABLE_ASAN)
 	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 	set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
 endif()
 
-if (ENABLE_UBSAN)
+if (TYPECHECK_ENABLE_UBSAN)
 	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined")
 	set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=undefined")
 endif()
@@ -85,27 +84,33 @@ if (default_if_in_dir)
 	endif()
 endif()
 
-include(cmake/fetch_extern.cmake)
-set(CATCH_VERSION 0f12995501ee01d3d2bdd9f4978bb28b5f670bab)
-
 if (NOT TARGET constraint)
-	fetch_extern(constraint https://github.com/mattpaletta/constraint.git master)
+	message(STATUS "Adding constraint from typecheck")
+	add_subdirectory(third_party/constraint EXCLUDE_FROM_ALL)
 endif()
 
 if (NOT TARGET cppnotstdlib)
-	fetch_extern(cppnotstdlib https://github.com/mattpaletta/cppnotstdlib.git main)
+	message(STATUS "Adding cppnotstdlib from typecheck")
+	add_subdirectory(third_party/cppnotstdlib EXCLUDE_FROM_ALL)
 endif()
 
-file(GLOB_RECURSE SRC_FILES src/*.cpp src/*.hpp)
-file(GLOB_RECURSE INC_FILES include/*.hpp)
+if (NOT TARGET magic_enum)
+	message(STATUS "Adding magic_enum from typecheck")
+	add_subdirectory(third_party/magic_enum EXCLUDE_FROM_ALL)
+endif()
 
-if (ENABLE_IWYU)
+if (NOT TARGET fmt)
+	message(STATUS "Adding fmt from typecheck")
+	add_subdirectory(third_party/fmt EXCLUDE_FROM_ALL)
+endif()
+
+if (TYPECHECK_ENABLE_IWYU)
 	find_program(iwyu_path NAMES include-what-you-use iwyu REQUIRED)
 	message("Include-What-You-Use Enabled: ${iwyu_path}")
 	set(iwhy_path_and_options "${iwyu_path} --mapping_file=${CMAKE_CURRENT_BINARY_DIR}/typecheck.imp")
 endif()
 
-if (ENABLE_LWYU)
+if (TYPECHECK_ENABLE_LWYU)
 	message("Link-What-You-Use Enabled")
 	set(CMAKE_LINK_WHAT_YOU_USE CACHE BOOL ON)
 endif()
@@ -141,18 +146,16 @@ if (TYPECHECK_ENABLE_CLANG_TIDY)
 	message("Clang-Tidy Enabled: ${CMAKE_CXX_CLANG_TIDY}")
 endif()
 
-add_library(typecheck ${SRC_FILES} ${INC_FILES})
+file(GLOB_RECURSE TXT_FILES include/*.hpp src/*.hpp)
+file(GLOB_RECURSE INC_FILES include/*.hpp src/*.hpp)
+add_library(typecheck STATIC ${INC_FILES})
+add_subdirectory(src)
 target_include_directories(typecheck PUBLIC include)
-target_link_libraries(typecheck PRIVATE constraint cppnotstdlib)
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${INC_FILES} ${SRC_FILES})
-
-if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-	target_precompile_headers(typecheck PUBLIC ${INC_FILES})
-endif()
+target_link_libraries(typecheck PRIVATE constraint cppnotstdlib fmt magic_enum::magic_enum)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${INC_FILES} ${SRC_FILES} ${TXT_FILES})
 
 if (TYPECHECK_ENABLE_CPP_CHECK)
 	set_property(TARGET typecheck PROPERTY CXX_CPPCHECK ${CMAKE_CXX_CPPCHECK})
-	unset(CMAKE_CXX_CPPCHECK)
 endif()
 
 if (ENABLE_IWYU)
@@ -161,10 +164,10 @@ endif()
 
 if (TYPECHECK_ENABLE_CLANG_TIDY)
 	set_property(TARGET typecheck PROPERTY CXX_CLANG_TIDY ${CMAKE_CXX_CLANG_TIDY})
-	set(CMAKE_CXX_CLANG_TIDY "")
 endif()
 
 target_compile_options(typecheck PRIVATE "${TYPECHECK_EXTRA_FLAGS}")
+target_compile_options(typecheck PRIVATE -Werror -Wextra -Wall -pedantic)
 
 if (TYPECHECK_PRINT_DEBUG_CONSTRAINTS)
 	message(STATUS "Typecheck: Debug Constraints Enabled")
@@ -180,85 +183,13 @@ target_compile_definitions(typecheck PUBLIC "$<$<CONFIG:Release>:RELEASE>")
 target_compile_definitions(typecheck PUBLIC "$<$<CONFIG:RelWithDebInfo>:DEBUG>")
 target_compile_definitions(typecheck PUBLIC "$<$<CONFIG:MinSizeRel>:RELEASE>")
 
-if(${TYPECHECK_ENABLE_BLOATY})
-	set(bloatyBin $<TARGET_FILE:bloaty>)
-	add_custom_target("typecheck_bloaty"
-			COMMAND ${bloatyBin} $<TARGET_FILE:typecheck>
-			DEPENDS bloaty typecheck
-			WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-			COMMENT "Running Bloaty")
-endif()
-
-if (${TYPECHECK_BUILD_TESTS})
-	if (NOT TARGET Catch2::Catch2)
-		find_package(Catch QUIET)
+if (TYPECHECK_BUILD_TESTS)
+	file(GLOB_RECURSE TEST_SRC_FILES src/*.test.cpp)
+	if (RUNTIME_BUILD_TESTS)
+		cpptest_configure_target(
+			TARGET typecheck
+			TEST_SRC_FILES ${TEST_SRC_FILES}
+		)
 	endif()
-
-	if (NOT TARGET Catch2::Catch2)
-		fetch_extern(catch2 https://github.com/catchorg/Catch2 ${CATCH_VERSION})
-	endif()
-
-    enable_testing()
-
-	file(GLOB_RECURSE TEST_INC_FILES test/*.hpp)
-
-	# Test everything (default test with `make test`
-	add_executable(test_typecheck test/test_typecheck.cpp ${TEST_INC_FILES})
-    target_link_libraries(test_typecheck typecheck Catch2::Catch2)
-    target_include_directories(test_typecheck SYSTEM PUBLIC $<TARGET_PROPERTY:Catch2::Catch2,INTERFACE_INCLUDE_DIRECTORIES>)
-	target_compile_definitions(test_typecheck PUBLIC "-DTEST_TYPE_MANAGER")
-	target_compile_definitions(test_typecheck PUBLIC "-DTEST_TYPE_CONSTRAINTS")
-
-	if (TYPECHECK_ENABLE_COVERAGE)
-		setup_target_for_coverage_lcov(
-			NAME coverage_typecheck
-			EXECUTABLE $<TARGET_FILE:test_typecheck>
-			LCOV_ARGS ${TYPECHECK_LCOV_ARGS}
-			GENHTML_ARGS --legend --branch-coverage
-		DEPENDENCIES test_typecheck)
-	endif()
-	# Don't add this global one as a test, duplicates every test.
-	# add_test(typecheck test_typecheck)
-
-	# Test just constraints
-	add_executable(test_constraints test/test_constraints.cpp ${TEST_INC_FILES})
-    target_link_libraries(test_constraints typecheck Catch2::Catch2)
-    target_include_directories(test_constraints SYSTEM PUBLIC $<TARGET_PROPERTY:Catch2::Catch2,INTERFACE_INCLUDE_DIRECTORIES>)
-	target_compile_definitions(test_constraints PUBLIC "-DTEST_TYPE_CONSTRAINTS")
-	if (TYPECHECK_ENABLE_COVERAGE)
-		setup_target_for_coverage_lcov(
-			NAME coverage_constraints
-			EXECUTABLE $<TARGET_FILE:test_constraints>
-			LCOV_ARGS ${TYPECHECK_LCOV_ARGS}
-			GENHTML_ARGS --legend --branch-coverage
-			DEPENDENCIES test_constraints)
-	endif()
-
-	# Test just type manager
-	add_executable(test_type_manager test/test_type_manager.cpp ${TEST_INC_FILES})
-    target_link_libraries(test_type_manager typecheck Catch2::Catch2)
-    target_include_directories(test_type_manager SYSTEM PUBLIC $<TARGET_PROPERTY:Catch2::Catch2,INTERFACE_INCLUDE_DIRECTORIES>)
-	target_compile_definitions(test_type_manager PUBLIC "-DTEST_TYPE_MANAGER")
-	if (TYPECHECK_ENABLE_COVERAGE)
-		setup_target_for_coverage_lcov(
-			NAME coverage_type_manager
-			EXECUTABLE $<TARGET_FILE:test_type_manager>
-			LCOV_ARGS ${TYPECHECK_LCOV_ARGS}
-			GENHTML_ARGS --legend --branch-coverage
-			DEPENDENCIES test_type_manager)
-	endif()
-
-	# Test just raw objects
-	add_executable(test_obj test/test_obj.cpp ${TEST_INC_FILES})
-    target_link_libraries(test_obj typecheck Catch2::Catch2)
-    target_include_directories(test_obj SYSTEM PUBLIC $<TARGET_PROPERTY:Catch2::Catch2,INTERFACE_INCLUDE_DIRECTORIES>)
-	target_compile_definitions(test_obj PUBLIC "-DTEST_TYPE_MANAGER")
-	if (TYPECHECK_ENABLE_COVERAGE)
-		setup_target_for_coverage_lcov(
-			NAME coverage_obj
-			EXECUTABLE $<TARGET_FILE:test_obj>
-			LCOV_ARGS ${TYPECHECK_LCOV_ARGS}
-			GENHTML_ARGS --legend --branch-coverage
-			DEPENDENCIES test_obj)
-	endif()
+	source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${TEST_SRC_FILES})
 endif()

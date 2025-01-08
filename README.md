@@ -5,9 +5,6 @@ This project is a language-agnostic typechecker.  It is designed to be abstract 
 ## Motivation
 This project was created out of my own need for a typechecker for my own compiler for [pseudocode](https://github.com/mattpaletta/pseudocode) (soon to be open-sourced).  I decide to separate the typechecker firstly so it could be easily tested as a different project, and secondly so I, and others, could use it for other projects in the future and benefit from any improvements made to this library over time.  You can see other projects using the project on the `THIRD_PARTY.md` file in this repo.
 
-## Build Status
-[![Build Status](https://travis-ci.com/mattpaletta/typecheck.svg?token=ysncAybhRTtbpjrpSW8S&branch=master)](https://travis-ci.com/mattpaletta/typecheck)
-
 ## Getting Started
 To save this document from getting too long, this has been moved to a separate document, `GettingStarted.md`, found in this repo.  This goes over the API at a high-level.  For more examples, you can find tests in the `test/` folder.
 
