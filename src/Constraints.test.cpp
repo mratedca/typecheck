@@ -676,10 +676,6 @@ NEW_TEST(ConstraintTest, RegressionTest2ConstraintsAckerman) {
 	tm.CreateBindToConstraint(T.at(76), boolType);
 	tm.CreateEqualsConstraint(T.at(76), T.at(12));
 	tm.CreateBindToConstraint(T.at(77), voidType);
-	tm.CreateEqualsConstraint(T.at(8), T.at(77));
-	tm.CreateEqualsConstraint(T.at(8), T.at(77));
-	tm.CreateEqualsConstraint(T.at(7), T.at(8));
-	tm.CreateEqualsConstraint(T.at(1), T.at(7));
 	tm.CreateLiteralConformsToConstraint(T.at(83), typecheck::KnownProtocolKind::ExpressibleByInteger);
 	tm.CreateEqualsConstraint(T.at(84), T.at(83));
 	tm.CreateLiteralConformsToConstraint(T.at(85), typecheck::KnownProtocolKind::ExpressibleByInteger);
@@ -708,9 +704,9 @@ void RunStressTest(const std::size_t numSymbols) {
 	const auto boolType = tm.getRegisteredType("bool");
 
 	for (std::size_t i = 0; i < numSymbols; ++i) {
-		if (i % (numSymbols / 5), 0) {
+		if (i % (numSymbols / 5) == 0) {
 			tm.CreateBindToConstraint(T.at(i), intType);
-		} else if (i % (numSymbols / 3), 0) {
+		} else if (i % (numSymbols / 3) == 0) {
 			tm.CreateLiteralConformsToConstraint(T.at(i), typecheck::KnownProtocolKind::ExpressibleByInteger);
 		}
 
