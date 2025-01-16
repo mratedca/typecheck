@@ -1,7 +1,6 @@
 #include "typecheck/Type.hpp"
 
-#include "fmt/core.h"
-
+#include <sstream>
 #include <utility>
 
 typecheck::RawType::RawType(std::string n) : _name(std::move(n)) {}
@@ -27,5 +26,7 @@ void typecheck::RawType::set_name(const std::string& name) {
 }
 
 auto typecheck::RawType::ShortDebugString() const -> std::string {
-	return fmt::format(R"({ "name": "{}" })", this->_name);
+	std::stringstream sstream;
+	sstream << "({ \"name\": \""<<this->_name<<"\" })";
+	return sstream.str();
 }

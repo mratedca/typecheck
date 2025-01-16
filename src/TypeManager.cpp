@@ -1,4 +1,5 @@
 #include "typecheck/TypeManager.hpp"
+#include "constraint/Domain.hpp"
 #include "typecheck/Constraint.hpp"           // for ConstraintKind
 #include "typecheck/Debug.hpp"
 #include "typecheck/GenericTypeGenerator.hpp"       // for GenericTypeGene...
@@ -276,7 +277,7 @@ namespace {
             }
 
             // Unknown.
-            return 0;
+            return 2;
         });
 
         // Use the same one for the actual solution, except punish more for not assigned.
@@ -294,7 +295,7 @@ namespace {
             }
 
             // Unknown.
-            return 0;
+            return 2;
         });
     }
 }
@@ -536,7 +537,14 @@ auto typecheck::TypeManager::solve() -> std::optional<ConstraintPass> {
                 const auto& var = explicit_.var();
                 const auto& type = explicit_.type();
 
-                insert_if_not_exists(var.symbol(), varDomain);
+                // The domain can only the be the explicit type.
+                if (type.has_raw()) {
+                    insert_if_not_exists(var.symbol(), {type.raw().name()});
+                } else if (type.has_func()) {
+                    insert_if_not_exists(var.symbol(), {type.func().name()});
+                } else {
+                    throw std::runtime_error("Unhandled explicit type parsing");
+                }
                 constraint_solver.AddConstraint(std::vector{var.symbol()}, [var, type](const constraint::Env& env) {
                     if (type.has_raw()) {
                         return env.At(var.symbol()).to_string() == type.raw().name();
