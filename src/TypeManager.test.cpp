@@ -1,6 +1,5 @@
 #include "cpptest/cpptest.hpp"
 #include "Utils.test.hpp"
-#include "cpptest/internal/googletest.hpp"
 
 class TypeManagerTest : public cpptest::BaseCppTest {
 public:

@@ -1,4 +1,4 @@
-#include "typecheck/debug.hpp"
+#include "typecheck/Debug.hpp"
 
 #include <iostream>
 #include <stdexcept>  // for runtime_error

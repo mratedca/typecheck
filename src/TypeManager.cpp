@@ -1,14 +1,13 @@
 #include "typecheck/TypeManager.hpp"
-#include "constraint/Domain.hpp"
 #include "typecheck/Constraint.hpp"           // for ConstraintKind
 #include "typecheck/Debug.hpp"
 #include "typecheck/GenericTypeGenerator.hpp"       // for GenericTypeGene...
 #include "typecheck/Type.hpp"                 // for Type, TypeVar
-
 #include "typecheck/protocols/ExpressibleByDoubleLiteral.hpp"
 #include "typecheck/protocols/ExpressibleByFloatLiteral.hpp"
 #include "typecheck/protocols/ExpressibleByIntegerLiteral.hpp"
 
+#include "constraint/Domain.hpp"
 #include "constraint/Env.hpp"
 #include "constraint/Node.hpp"
 #include "constraint/Solver.hpp"
@@ -562,11 +561,11 @@ auto typecheck::TypeManager::solve() -> std::optional<ConstraintPass> {
         }
     }
 
-
-    const auto numVariables = all_variable_names.size();
+    using DistanceType = constraint::Node::distance_type;
+    const auto numVariables = (DistanceType)all_variable_names.size();
     auto heuristic = [heuristics = std::move(heuristcFuncs), numVariables](const constraint::StateQuery& state) {
         // Calculate the difference, allows us to measure meaningful progress
-        std::size_t sum = numVariables + state.NumConstraints() - state.NumSatisfied();
+        DistanceType sum = numVariables + (DistanceType)state.NumConstraints() - (DistanceType)state.NumSatisfied();
         for (const auto& H : heuristics) {
             sum += H(state);
         }
@@ -575,7 +574,7 @@ auto typecheck::TypeManager::solve() -> std::optional<ConstraintPass> {
 
     auto actualDistance = [actual = std::move(distanceFuncs), numVariables](const constraint::StateQuery& state) {
         // Calculate the difference, allows us to measure meaningful progress
-        std::size_t sum = numVariables + state.NumConstraints();
+        DistanceType sum = numVariables + (DistanceType)state.NumConstraints();
         for (const auto& G : actual) {
             sum += G(state);
         }

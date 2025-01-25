@@ -5,6 +5,7 @@
 #include "TypeVar.hpp"
 
 #include <optional>
+#include <cstdint>
 
 namespace typecheck {
 	enum ConstraintKind {
