@@ -86,12 +86,12 @@ endif()
 
 if (NOT TARGET constraint)
 	message(STATUS "Adding constraint from typecheck")
-	add_subdirectory(third_party/constraint EXCLUDE_FROM_ALL)
+	add_subdirectory(third_party/constraint)
 endif()
 
 if (NOT TARGET cppnotstdlib)
 	message(STATUS "Adding cppnotstdlib from typecheck")
-	add_subdirectory(third_party/cppnotstdlib EXCLUDE_FROM_ALL)
+	add_subdirectory(third_party/cppnotstdlib)
 endif()
 
 if (NOT TARGET magic_enum)
@@ -106,7 +106,7 @@ endif()
 
 if (NOT TARGET cpptest)
 	message(STATUS "Adding cpptest from typecheck")
-	add_subdirectory(third_party/cpptest EXCLUDE_FROM_ALL)
+	add_subdirectory(third_party/cpptest)
 endif()
 
 if (TYPECHECK_ENABLE_IWYU)
