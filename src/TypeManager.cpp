@@ -23,6 +23,7 @@
 #include <optional>
 #include <queue>
 #include <sstream>                                    // for std::stringstream
+#include <stdexcept>
 #include <string>                                     // for std::string
 #include <type_traits>                                // for move
 #include <utility>                                    // for make_pair
@@ -222,13 +223,22 @@ namespace {
         if (cppnotstdlib::string::explode(val, '|').size() == 1) {
             return {typecheck::RawType(val)};
         } else {
-            auto fvar = typecheck::FunctionVar::unserialize(val);
+            const auto fvar = typecheck::FunctionVar::unserialize(val);
             typecheck::FunctionDefinition funcDef;
             funcDef.set_name(fvar.name());
             funcDef.set_id(fvar.id());
             funcDef.mutable_returntype()->CopyFrom(TypeFromString(sol.At(fvar.returnvar().symbol()).to_string(), sol));
             for (const auto& a : fvar.args()) {
-                funcDef.add_args()->CopyFrom(TypeFromString(sol.At(a.symbol()).to_string(), sol));
+                const auto foundVariable = sol.At(a.symbol()).to_string();
+                // Prevent infinite loops.
+                assert(foundVariable != val);
+
+                if (!sol.Contains(foundVariable)) {
+                    throw std::logic_error("Solution does not contain variable");
+                }
+
+                const auto foundType = TypeFromString(foundVariable, sol);
+                funcDef.add_args()->CopyFrom(foundType);
             }
             return {funcDef};
         }
@@ -589,8 +599,17 @@ auto typecheck::TypeManager::solve() -> std::optional<ConstraintPass> {
 
     ConstraintPass pass;
     for (const auto& var : all_variable_names) {
+        if (!solution->Contains(var)) {
+            // Not necessarily an error, as the caller could accept partial solutions.
+            continue;
+        }
+
         const auto val = solution->At(var);
-        pass.SetResolvedType(var, TypeFromString(val.to_string(), *solution));
+        try {
+            pass.SetResolvedType(var, TypeFromString(val.to_string(), *solution));
+        } catch (...) {
+            continue;
+        }
     }
     return pass;
 }
