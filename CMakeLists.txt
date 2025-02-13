@@ -8,8 +8,33 @@ if (NOT DEFINED CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug")
 endif()
 
-# Loads all of the options
-include(cmake/options.cmake)
+include(cmake/utils.cmake)
+
+if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
+	set(default_if_in_dir ON)
+else()
+	set(default_if_in_dir OFF)
+endif()
+
+set(in_source_msg "Defaults to `ON` if in-source build")
+
+set_option_if_not_set(ENABLE_ASAN "Enable Address Sanitizer" OFF)
+set_option_if_not_set(ENABLE_UBSAN "Enable Undefined Behaviour Sanitizer" OFF)
+set_option_if_not_set(ENABLE_IWYU "Use include-what-you-use - ${in_source_msg}" OFF)
+set_option_if_not_set(ENABLE_LWYU "Use link-what-you-use - ${in_source_msg}" ${default_if_in_dir})
+set_option_if_not_set(TYPECHECK_ENABLE_CLANG_TIDY "Use clang-tidy - ${in_source_msg}" OFF)
+set_option_if_not_set(TYPECHECK_FIX_ERRORS "Only relevant if ENABLE_CLANG_TIDY enabled, sets --fix flag on clang-tidy - ${in_source_msg}" ${default_if_in_dir})
+
+set_option_if_not_set(TYPECHECK_ENABLE_CPP_CHECK "Use cppcheck - ${in_source_msg}" OFF)
+set_option_if_not_set(TYPECHECK_WERROR "Use Werror" OFF)
+set_option_if_not_set(TYPECHECK_BUILD_TESTS "Build tests - ${in_source_msg}" ${default_if_in_dir})
+set_option_if_not_set(TYPECHECK_ENABLE_COVERAGE "Build code coverage targets, default OFF" OFF)
+set_option_if_not_set(TYPECHECK_ENABLE_BLOATY "Build bloaty target (unfinished, WIP)" OFF)
+
+set_option_if_not_set(TYPECHECK_PRINT_DEBUG_CONSTRAINTS "Prints debug information when creating constraints" OFF)
+set_option_if_not_set(TYPECHECK_PRINT_SHORT_DEBUG "Prints shorter debug description information, only active if TYPECHECK_PRINT_DEBUG_CONSTRAINTS=ON" ON)
+
+
 if (TYPECHECK_ENABLE_COVERAGE)
 	# Only require lcov if code coverage enabled
 	include(cmake/CodeCoverage.cmake)
@@ -191,11 +216,9 @@ target_compile_definitions(typecheck PUBLIC "$<$<CONFIG:MinSizeRel>:RELEASE>")
 
 if (TYPECHECK_BUILD_TESTS)
 	file(GLOB_RECURSE TEST_SRC_FILES src/*.test.cpp)
-	if (RUNTIME_BUILD_TESTS)
-		cpptest_configure_target(
-			TARGET typecheck
-			TEST_SRC_FILES ${TEST_SRC_FILES}
-		)
-	endif()
+	cpptest_configure_target(
+		TARGET typecheck
+		TEST_SRC_FILES ${TEST_SRC_FILES}
+	)
 	source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${TEST_SRC_FILES})
 endif()
