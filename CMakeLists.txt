@@ -34,6 +34,9 @@ set_option_if_not_set(TYPECHECK_ENABLE_BLOATY "Build bloaty target (unfinished, 
 set_option_if_not_set(TYPECHECK_PRINT_DEBUG_CONSTRAINTS "Prints debug information when creating constraints" OFF)
 set_option_if_not_set(TYPECHECK_PRINT_SHORT_DEBUG "Prints shorter debug description information, only active if TYPECHECK_PRINT_DEBUG_CONSTRAINTS=ON" ON)
 
+if (TYPECHECK_BUILD_TESTS)
+	enable_testing()
+endif()
 
 if (TYPECHECK_ENABLE_COVERAGE)
 	# Only require lcov if code coverage enabled
@@ -131,6 +134,10 @@ endif()
 
 if (NOT TARGET cpptest)
 	message(STATUS "Adding cpptest from typecheck")
+	if (default_if_in_dir)
+		set(CORESERVICES_ENABLE_HTTP OFF)
+		set(CORESERVICES_ENABLE_LOCATION OFF)
+	endif()
 	add_subdirectory(third_party/cpptest)
 endif()
 
