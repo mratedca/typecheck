@@ -227,9 +227,20 @@ namespace {
             typecheck::FunctionDefinition funcDef;
             funcDef.set_name(fvar.name());
             funcDef.set_id(fvar.id());
-            funcDef.mutable_returntype()->CopyFrom(TypeFromString(sol.At(fvar.returnvar().symbol()).to_string(), sol));
+
+            const auto returnVar = fvar.returnvar().symbol();
+            const auto lookupReturnVar = sol.At(returnVar).to_string();
+
+            // A function should not return itself.
+            // Prevent infinite loops
+            assert(returnVar != val);
+            assert(lookupReturnVar != val);
+
+            funcDef.mutable_returntype()->CopyFrom(TypeFromString(lookupReturnVar, sol));
             for (const auto& a : fvar.args()) {
-                const auto foundVariable = sol.At(a.symbol()).to_string();
+                const auto foundVariable = a.symbol(); 
+                const auto resolvedVariable = sol.At(foundVariable).to_string();
+
                 // Prevent infinite loops.
                 assert(foundVariable != val);
 
@@ -237,7 +248,7 @@ namespace {
                     throw std::logic_error("Solution does not contain variable");
                 }
 
-                const auto foundType = TypeFromString(foundVariable, sol);
+                const auto foundType = TypeFromString(resolvedVariable, sol);
                 funcDef.add_args()->CopyFrom(foundType);
             }
             return {funcDef};

@@ -20,7 +20,10 @@ auto typecheck::ConstraintPass::HasResolvedType(const TypeVar& var) const -> boo
 
 auto typecheck::ConstraintPass::SetResolvedType(const TypeVar& var, const Type& type) -> bool {
     if (!var.symbol().empty()) {
-        this->resolvedTypes[var.symbol()] = type;
+        const auto [it, didInsert] = this->resolvedTypes.emplace(var.symbol(), type);
+        if (!didInsert) {
+            this->resolvedTypes.at(var.symbol()) = type;
+        }
         return true;
     }
 
