@@ -1,8 +1,8 @@
 #include "typecheck/KnownProtocolKind.hpp"
 
-#include "fmt/core.h"
 #include "magic_enum/magic_enum.hpp"
 
+#include <format>
 #include <sstream>
 
 auto typecheck::KnownProtocolKind::literal() const -> const LiteralProtocol& {
@@ -21,7 +21,7 @@ auto typecheck::KnownProtocolKind::ShortDebugString() const -> std::string {
 	std::stringstream out;
 	out << "{ ";
 	if (this->has_literal()) {
-		out << fmt::format(R"("literal": {})", magic_enum::enum_name(this->literal()));
+		out << std::format(R"("literal": {})", magic_enum::enum_name(this->literal()));
 	}
 	out << "}";
 	return out.str();

@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.16)
 project(typecheck LANGUAGES CXX C)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if (NOT DEFINED CMAKE_BUILD_TYPE)
@@ -127,11 +127,6 @@ if (NOT TARGET magic_enum)
 	add_subdirectory(third_party/magic_enum EXCLUDE_FROM_ALL)
 endif()
 
-if (NOT TARGET fmt)
-	message(STATUS "Adding fmt from typecheck")
-	add_subdirectory(third_party/fmt EXCLUDE_FROM_ALL)
-endif()
-
 if (NOT TARGET cpptest)
 	message(STATUS "Adding cpptest from typecheck")
 	if (default_if_in_dir)
@@ -189,7 +184,7 @@ add_library(typecheck STATIC ${INC_FILES})
 add_subdirectory(src)
 target_include_directories(typecheck PUBLIC include)
 target_link_libraries(typecheck PRIVATE constraint cppnotstdlib)
-coreservices_target_link_libraries_system(typecheck PRIVATE fmt magic_enum::magic_enum)
+coreservices_target_link_libraries_system(typecheck PRIVATE magic_enum::magic_enum)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${INC_FILES} ${SRC_FILES} ${TXT_FILES})
 
 if (TYPECHECK_ENABLE_CPP_CHECK)
