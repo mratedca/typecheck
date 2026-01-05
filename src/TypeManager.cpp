@@ -32,7 +32,7 @@ typecheck::TypeManager::TypeManager() = default;
 
 auto typecheck::TypeManager::registerType(const std::string& name) -> bool {
     Type ty;
-    ty.mutable_raw()->set_name(name);
+    ty.mutable_generic()->set_name(name);
     return this->registerType(ty);
 }
 
@@ -49,17 +49,17 @@ auto typecheck::TypeManager::registerType(const Type& name) -> bool {
 
 auto typecheck::TypeManager::hasRegisteredType(const std::string& name) const noexcept -> bool {
     const auto returned = this->getRegisteredType(name);
-    return returned.has_raw() || returned.has_func();
+    return returned.has_generic() || returned.has_func();
 }
 
 auto typecheck::TypeManager::hasRegisteredType(const Type& name) const noexcept -> bool {
     const auto returned = this->getRegisteredType(name);
-    return returned.has_raw() || returned.has_func();
+    return returned.has_generic() || returned.has_func();
 }
 
 auto typecheck::TypeManager::getRegisteredType(const std::string& name) const noexcept -> Type {
     Type ty;
-    ty.mutable_raw()->set_name(name);
+    ty.mutable_generic()->set_name(name);
     return this->getRegisteredType(ty);
 }
 
@@ -89,10 +89,10 @@ auto typecheck::TypeManager::getFunctionOverloads(Constraint::IDType funcID) con
 
 auto typecheck::TypeManager::setConvertible(const std::string& T0, const std::string& T1) -> bool {
     Type t0;
-    t0.mutable_raw()->set_name(T0);
+    t0.mutable_generic()->set_name(T0);
 
     Type t1;
-    t1.mutable_raw()->set_name(T1);
+    t1.mutable_generic()->set_name(T1);
 
     return this->setConvertible(t0, t1);
 }
@@ -123,9 +123,9 @@ auto typecheck::TypeManager::setConvertible(const Type& T0, const Type& T1) -> b
     if (t0_ptr.has_func() || t1_ptr.has_func()) {
         // Functions not convertible to each other
         return false;
-    } else if (!t0_ptr.raw().name().empty() && !t1_ptr.raw().name().empty() && this->convertible[t0_ptr.raw().name()].find(t1_ptr.raw().name()) == this->convertible[t0_ptr.raw().name()].end()) {
+    } else if (!t0_ptr.generic().name().empty() && !t1_ptr.generic().name().empty() && this->convertible[t0_ptr.generic().name()].find(t1_ptr.generic().name()) == this->convertible[t0_ptr.generic().name()].end()) {
 		// Convertible from T0 -> T1
-        this->convertible[t0_ptr.raw().name()].insert(t1_ptr.raw().name());
+        this->convertible[t0_ptr.generic().name()].insert(t1_ptr.generic().name());
 		return true;
 	}
 	return false;
@@ -133,15 +133,15 @@ auto typecheck::TypeManager::setConvertible(const Type& T0, const Type& T1) -> b
 
 auto typecheck::TypeManager::isConvertible(const std::string& T0, const std::string& T1) const noexcept -> bool {
     Type t0;
-    t0.mutable_raw()->set_name(T0);
+    t0.mutable_generic()->set_name(T0);
 
     Type t1;
-    t1.mutable_raw()->set_name(T1);
+    t1.mutable_generic()->set_name(T1);
     return this->isConvertible(t0, t1);
 }
 
 auto typecheck::TypeManager::isConvertible(const Type& T0, const Type& T1) const noexcept -> bool {
-    if (T0.raw().name().empty() || T1.raw().name().empty()) {
+    if (T0.generic().name().empty() || T1.generic().name().empty()) {
         // Undefined types, stop here.
         return false;
     }
@@ -156,12 +156,12 @@ auto typecheck::TypeManager::isConvertible(const Type& T0, const Type& T1) const
 	}
 
     // Because they're not functions, they must both be raw.
-    if (this->convertible.find(T0.raw().name()) == this->convertible.end()) {
+    if (this->convertible.find(T0.generic().name()) == this->convertible.end()) {
 		// T0 is not in the map, meaning the conversion won't be there.
 		return false;
 	}
 
-    if (this->convertible.at(T0.raw().name()).find(T1.raw().name()) != this->convertible.at(T0.raw().name()).end()) {
+    if (this->convertible.at(T0.generic().name()).find(T1.generic().name()) != this->convertible.at(T0.generic().name()).end()) {
 		// Convertible from T0 -> T1
 		return true;
 	}
@@ -176,11 +176,11 @@ auto typecheck::TypeManager::getConvertible(const Type& T0) const -> std::vector
         return out;
     }
 
-    if (this->convertible.find(T0.raw().name()) != this->convertible.end()) {
+    if (this->convertible.find(T0.generic().name()) != this->convertible.end()) {
         // Load into vector
-        for (const auto& convert : this->convertible.at(T0.raw().name())) {
+        for (const auto& convert : this->convertible.at(T0.generic().name())) {
             Type type;
-            type.mutable_raw()->set_name(convert);
+            type.mutable_generic()->set_name(convert);
             out.emplace_back(std::move(type));
         }
     }
@@ -220,8 +220,17 @@ auto typecheck::TypeManager::getConstraint(const Constraint::IDType id) const ->
 
 namespace {
     typecheck::Type TypeFromString(const std::string& val, const constraint::Solution& sol) {
+        // Check if it's an array type: "Array[elementType]"
+        if (val.rfind("Array[", 0) == 0 && val.back() == ']') {
+            // Extract element type from "Array[elementType]"
+            const auto elementTypeName = val.substr(6, val.size() - 7);  // Skip "Array[" and "]"
+            typecheck::GenericType arrayType("Array");
+            arrayType.add_type_param()->CopyFrom(TypeFromString(elementTypeName, sol));
+            return {arrayType};
+        }
+        
         if (cppnotstdlib::string::explode(val, '|').size() == 1) {
-            return {typecheck::RawType(val)};
+            return {typecheck::GenericType(val)};
         } else {
             const auto fvar = typecheck::FunctionVar::unserialize(val);
             typecheck::FunctionDefinition funcDef;
@@ -256,8 +265,8 @@ namespace {
     }
 
     void AddTypeToDomain(constraint::Domain::data_type& domain, const typecheck::Type& type) {
-        if (type.has_raw()) {
-            domain.emplace_back(type.raw().name());
+        if (type.has_generic()) {
+            domain.emplace_back(type.generic().name());
         } else if (type.has_func()) {
             domain.emplace_back(type.func().name());
         }
@@ -288,7 +297,7 @@ namespace {
             if (state.IsAssigned(var)) {
                 // Check if in preferred list or not.
                 for (const auto& ty : protocol.getPreferredTypes()) {
-                    if (ty.raw().name() == state.variable_map.at(var).to_string()) {
+                    if (ty.generic().name() == state.variable_map.at(var).to_string()) {
                         return 0;
                     }
                 }
@@ -306,7 +315,7 @@ namespace {
             if (state.IsAssigned(var)) {
                 // Check if in preferred list or not.
                 for (const auto& ty : protocol.getPreferredTypes()) {
-                    if (ty.raw().name() == state.variable_map.at(var).to_string()) {
+                    if (ty.generic().name() == state.variable_map.at(var).to_string()) {
                         return 0;
                     }
                 }
@@ -327,7 +336,6 @@ auto typecheck::TypeManager::solve() -> std::optional<ConstraintPass> {
     std::vector<constraint::Solver::DistanceFunc> heuristcFuncs;
     std::vector<constraint::Solver::DistanceFunc> distanceFuncs;
 
-#pragma mark - Gather All Data
     auto insert_if_not_exists = [&constraint_solver, &all_variable_names](const std::string& var, const constraint::Domain& domain) {
         if (domain.size() == 0) {
             std::cout << "Warning: Domain Empty for variable: " << var << std::endl;
@@ -338,6 +346,43 @@ auto typecheck::TypeManager::solve() -> std::optional<ConstraintPass> {
             all_variable_names.insert(var);
         }
     };
+
+    // Pre-processing: Add implied element equality constraints
+    // If we have Equals(A, B) and ArrayElement(A, EA) and ArrayElement(B, EB),
+    // then add Equals(EA, EB)
+    std::vector<Constraint> impliedConstraints;
+    for (const auto& equalsConstraint : this->constraints) {
+        if (equalsConstraint.kind() == Equal && equalsConstraint.has_types()) {
+            const auto& types = equalsConstraint.types();
+            if (types.has_first() && types.has_second()) {
+                const auto& var1 = types.first().symbol();
+                const auto& var2 = types.second().symbol();
+                
+                // Check if both have array element constraints
+                auto it1 = this->arrayElementMap.find(var1);
+                auto it2 = this->arrayElementMap.find(var2);
+                
+                if (it1 != this->arrayElementMap.end() && it2 != this->arrayElementMap.end()) {
+                    // Both are arrays - add element equality constraint
+                    Constraint elemConstraint;
+                    elemConstraint.set_kind(ConstraintKind::Equal);
+                    elemConstraint.set_id(this->constraint_generator.next_id());
+                    
+                    TypeVar elem1, elem2;
+                    elem1.set_symbol(it1->second);
+                    elem2.set_symbol(it2->second);
+                    elemConstraint.mutable_types()->mutable_first()->CopyFrom(elem1);
+                    elemConstraint.mutable_types()->mutable_second()->CopyFrom(elem2);
+                    impliedConstraints.push_back(elemConstraint);
+                }
+            }
+        }
+    }
+    
+    // Add the implied constraints
+    for (const auto& constraint : impliedConstraints) {
+        this->constraints.push_back(constraint);
+    }
 
     // Var Domain
     const auto varDomain = [this] {
@@ -415,8 +460,30 @@ auto typecheck::TypeManager::solve() -> std::optional<ConstraintPass> {
             if (type_names.empty()) {
                 std::cout << "Malformed Types Constraint" << std::endl;
             } else {
-                for (const auto& ty : type_names) {
-                    insert_if_not_exists(ty, varDomain);
+                // Special handling for ArrayElement constraints
+                if (constraint.kind() == ArrayElement) {
+                    // First type is array, second is element
+                    // Element gets full domain which includes both base types and array types
+                    constraint::Domain::data_type elementDomain = varDomain.data();
+                    
+                    // Also add array types to the element domain to support nested arrays
+                    constraint::Domain::data_type arrayTypesForElements;
+                    for (const auto& ty : varDomain.data()) {
+                        arrayTypesForElements.emplace_back("Array[" + ty.to_string() + "]");
+                    }
+                    elementDomain.insert(elementDomain.end(), arrayTypesForElements.begin(), arrayTypesForElements.end());
+                    insert_if_not_exists(type_names.at(1), constraint::Domain(elementDomain));
+                    
+                    // Array gets domain of Array[T] for each T in the element domain (including nested arrays)
+                    constraint::Domain::data_type arrayDomain;
+                    for (const auto& ty : elementDomain) {
+                        arrayDomain.emplace_back("Array[" + ty.to_string() + "]");
+                    }
+                    insert_if_not_exists(type_names.at(0), arrayDomain);
+                } else {
+                    for (const auto& ty : type_names) {
+                        insert_if_not_exists(ty, varDomain);
+                    }
                 }
 
                 switch (constraint.kind()) {
@@ -441,12 +508,39 @@ auto typecheck::TypeManager::solve() -> std::optional<ConstraintPass> {
                     constraint_solver.AddConstraint(std::vector{type_names}, [type_names](const constraint::Env& env) {
                         const auto firstVar = env.At(type_names.at(0));
                         for (const auto& ty : type_names) {
-                            if (firstVar != env.At(ty)) {
-                                return false;
+                            const auto currentVar = env.At(ty);
+                            if (firstVar != currentVar) {
+                                // Check if both are arrays - if so, their element types must be equal
+                                const auto firstStr = firstVar.to_string();
+                                const auto currentStr = currentVar.to_string();
+                                
+                                if (firstStr.starts_with("Array[") && currentStr.starts_with("Array[")) {
+                                    // Extract element types: "Array[ElementType]" -> "ElementType"
+                                    auto firstElement = firstStr.substr(6, firstStr.length() - 7);
+                                    auto currentElement = currentStr.substr(6, currentStr.length() - 7);
+                                    
+                                    // Element types must be equal
+                                    if (firstElement != currentElement) {
+                                        return false;
+                                    }
+                                } else {
+                                    return false;
+                                }
                             }
                         }
 
                         return true;
+                    });
+                    break;
+                case ArrayElement:
+                    // ArrayElement constraint: arrayVar (first) is Array<elementVar (second)>
+                    constraint_solver.AddConstraint(std::vector{type_names}, [type_names](const constraint::Env& env) {
+                        const auto arrayVarValue = env.At(type_names.at(0)).to_string();
+                        const auto elementVarValue = env.At(type_names.at(1)).to_string();
+                        
+                        // Check if arrayVar is "Array[elementVar]"
+                        const std::string expectedArrayType = "Array[" + elementVarValue + "]";
+                        return arrayVarValue == expectedArrayType;
                     });
                     break;
 				case Bind:
@@ -558,16 +652,16 @@ auto typecheck::TypeManager::solve() -> std::optional<ConstraintPass> {
                 const auto& type = explicit_.type();
 
                 // The domain can only the be the explicit type.
-                if (type.has_raw()) {
-                    insert_if_not_exists(var.symbol(), {type.raw().name()});
+                if (type.has_generic()) {
+                    insert_if_not_exists(var.symbol(), {type.generic().name()});
                 } else if (type.has_func()) {
                     insert_if_not_exists(var.symbol(), {type.func().name()});
                 } else {
                     throw std::runtime_error("Unhandled explicit type parsing");
                 }
                 constraint_solver.AddConstraint(std::vector{var.symbol()}, [var, type](const constraint::Env& env) {
-                    if (type.has_raw()) {
-                        return env.At(var.symbol()).to_string() == type.raw().name();
+                    if (type.has_generic()) {
+                        return env.At(var.symbol()).to_string() == type.generic().name();
                     }
 
                     return false;

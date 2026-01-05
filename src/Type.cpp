@@ -1,6 +1,6 @@
 #include "typecheck/Type.hpp"
 #include "typecheck/FunctionDefinition.hpp"
-#include "typecheck/RawType.hpp"
+#include "typecheck/GenericType.hpp"
 
 #include <iostream>
 #include <sstream>
@@ -8,7 +8,7 @@
 
 typecheck::Type::Type() : data(false) {}
 
-typecheck::Type::Type(const RawType& r) : data(r) {}
+typecheck::Type::Type(const GenericType& g) : data(g) {}
 
 typecheck::Type::Type(const FunctionDefinition& f) : data(f) {}
 
@@ -36,15 +36,15 @@ auto typecheck::Type::operator=(Type&& other) noexcept -> Type& {
 }
 
 auto typecheck::Type::operator==(const Type& other) const noexcept -> bool {
-	if (this->has_raw() && other.has_raw()) {
-		return this->raw() == other.raw();
+	if (this->has_generic() && other.has_generic()) {
+		return this->generic() == other.generic();
 	}
 
 	if (this->has_func() && other.has_func()) {
 		return this->func() == other.func();
 	}
 
-	return !this->has_raw() && !other.has_raw() && !this->has_func() && !other.has_func();
+	return !this->has_generic() && !other.has_generic() && !this->has_func() && !other.has_func();
 }
 
 auto typecheck::Type::CopyFrom(const Type& other) -> Type& {
@@ -52,8 +52,8 @@ auto typecheck::Type::CopyFrom(const Type& other) -> Type& {
 		return *this;
 	}
 
-	if (other.has_raw()) {
-		this->mutable_raw()->CopyFrom(other.raw());
+	if (other.has_generic()) {
+		this->mutable_generic()->CopyFrom(other.generic());
 	} else if (other.has_func()) {
 		this->mutable_func()->CopyFrom(other.func());
 	} else {
@@ -63,26 +63,26 @@ auto typecheck::Type::CopyFrom(const Type& other) -> Type& {
 	return *this;
 }
 
-auto typecheck::Type::has_raw() const -> bool {
-	return std::holds_alternative<RawType>(this->data);
+auto typecheck::Type::has_generic() const -> bool {
+	return std::holds_alternative<GenericType>(this->data);
 }
 
 auto typecheck::Type::has_func() const -> bool {
 	return std::holds_alternative<FunctionDefinition>(this->data);
 }
 
-auto typecheck::Type::mutable_raw() -> RawType* {
-	if (!this->has_raw()) {
-		this->data = RawType{};
+auto typecheck::Type::mutable_generic() -> GenericType* {
+	if (!this->has_generic()) {
+		this->data = GenericType{};
 	}
-	return std::get_if<RawType>(&this->data);
+	return std::get_if<GenericType>(&this->data);
 }
 
-auto typecheck::Type::raw() const -> const RawType& {
-	if (!this->has_raw()) {
-		this->data = RawType{};
+auto typecheck::Type::generic() const -> const GenericType& {
+	if (!this->has_generic()) {
+		this->data = GenericType{};
 	}
-	return std::get<RawType>(this->data);
+	return std::get<GenericType>(this->data);
 }
 
 auto typecheck::Type::mutable_func() -> FunctionDefinition* {
@@ -102,8 +102,8 @@ auto typecheck::Type::func() const -> const FunctionDefinition& {
 auto typecheck::Type::ShortDebugString() const -> std::string {
 	std::stringstream out;
 	out << "{ ";
-	if (this->has_raw()) {
-		out << "\"raw\": " << this->raw().ShortDebugString() << (this->has_func() ? ", " : " ");
+	if (this->has_generic()) {
+		out << "\"generic\": " << this->generic().ShortDebugString() << (this->has_func() ? ", " : " ");
 	}
 	if (this->has_func()) {
 		out << "\"func\": " << this->func().ShortDebugString() << " ";

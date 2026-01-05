@@ -16,6 +16,7 @@ namespace typecheck {
 		ConformsTo,
 		ApplicableFunction,
 		BindOverload,
+		ArrayElement,
 	};
 
 	enum ConstraintRestrictionKind {

@@ -9,7 +9,7 @@ namespace typecheck {
 	protected:
 		[[nodiscard]] auto ty(const std::string& _ty) const noexcept -> Type {
 			Type ty;
-            ty.mutable_raw()->set_name(_ty);
+            ty.mutable_generic()->set_name(_ty);
 			return ty;
 		}
 

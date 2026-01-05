@@ -32,9 +32,9 @@ NEW_TEST(FunctionDefinitionTest, CheckCreateReturnType) {
 NEW_TEST(FunctionDefinitionTest, CheckMutateReturnType) {
 	typecheck::FunctionDefinition f;
 	CPPTEST_EXPECT_FALSE(f.has_returntype());
-	f.mutable_returntype()->mutable_raw()->set_name("Hello World");
-	CPPTEST_EXPECT_THAT(f.returntype().has_raw());
-	CPPTEST_EXPECT_EQ(f.returntype().raw().name(), "Hello World");
+	f.mutable_returntype()->mutable_generic()->set_name("Hello World");
+	CPPTEST_EXPECT_THAT(f.returntype().has_generic());
+	CPPTEST_EXPECT_EQ(f.returntype().generic().name(), "Hello World");
 }
 
 NEW_TEST(FunctionDefinitionTest, CheckCopyFrom) {
@@ -45,28 +45,28 @@ NEW_TEST(FunctionDefinitionTest, CheckCopyFrom) {
 	CPPTEST_EXPECT_EQ(f.args_size(), 1);
 
 	CPPTEST_EXPECT_FALSE(f.has_returntype());
-	f.mutable_returntype()->mutable_raw()->set_name("Hello World");
-	CPPTEST_EXPECT_THAT(f.returntype().has_raw());
-	CPPTEST_EXPECT_EQ(f.returntype().raw().name(), "Hello World");
+	f.mutable_returntype()->mutable_generic()->set_name("Hello World");
+	CPPTEST_EXPECT_THAT(f.returntype().has_generic());
+	CPPTEST_EXPECT_EQ(f.returntype().generic().name(), "Hello World");
 
 	typecheck::FunctionDefinition g;
 	g.CopyFrom(f);
 	CPPTEST_EXPECT_EQ(g.args_size(), 1);
 	CPPTEST_EXPECT_THAT(g.has_returntype());
-	CPPTEST_EXPECT_THAT(g.returntype().has_raw());
-	CPPTEST_EXPECT_EQ(g.returntype().raw().name(), "Hello World");
+	CPPTEST_EXPECT_THAT(g.returntype().has_generic());
+	CPPTEST_EXPECT_EQ(g.returntype().generic().name(), "Hello World");
 }
 
 NEW_TEST(FunctionDefinitionTest, CheckEquals) {
 	typecheck::FunctionDefinition f;
 	f.set_id(123);
 	f.add_args();
-	f.mutable_returntype()->mutable_raw()->set_name("Hello World");
+	f.mutable_returntype()->mutable_generic()->set_name("Hello World");
 
 	typecheck::FunctionDefinition g;
 	g.set_id(123);
 	g.add_args();
-	g.mutable_returntype()->mutable_raw()->set_name("Hello World");
+	g.mutable_returntype()->mutable_generic()->set_name("Hello World");
 	CPPTEST_EXPECT_EQ(f, g);
 
 	g.add_args();

@@ -42,6 +42,29 @@ auto TypeManager::CreateEqualsConstraint(const TypeVar& t0, const TypeVar& t1) -
 	constraint.mutable_types()->mutable_first()->CopyFrom(t0);
 	constraint.mutable_types()->mutable_second()->CopyFrom(t1);
 
+	// If both type variables are arrays, also create an Equals constraint between their element types
+	auto t0ElementIt = this->arrayElementMap.find(t0.symbol());
+	auto t1ElementIt = this->arrayElementMap.find(t1.symbol());
+	
+	if (t0ElementIt != this->arrayElementMap.end() && t1ElementIt != this->arrayElementMap.end()) {
+		// Both are arrays, create element equality
+		TypeVar t0Element;
+		t0Element.set_symbol(t0ElementIt->second);
+		TypeVar t1Element;
+		t1Element.set_symbol(t1ElementIt->second);
+		
+		// Recursively create equals constraint for elements
+		// Note: We need to add this constraint first, then add the main constraint
+		// to ensure proper constraint ordering
+		auto elementConstraint = getNewBlankConstraint(ConstraintKind::Equal, this->constraint_generator.next_id());
+		elementConstraint.mutable_types()->mutable_first()->CopyFrom(t0Element);
+		elementConstraint.mutable_types()->mutable_second()->CopyFrom(t1Element);
+		
+#ifdef TYPECHECK_PRINT_DEBUG_CONSTRAINTS
+		std::cout << "Auto-generated element equality: " << debug_constraint_headers(elementConstraint) << std::endl;
+#endif
+		this->constraints.emplace_back(elementConstraint);
+	}
 
 #ifdef TYPECHECK_PRINT_DEBUG_CONSTRAINTS
     std::cout << debug_constraint_headers(constraint) << std::endl;
@@ -155,10 +178,32 @@ auto TypeManager::CreateBindToConstraint(const TypeVar& T0, const Type& type) ->
 
     TYPECHECK_ASSERT(!T0.symbol().empty(), "Cannot use empty type when creating constraint.");
     TYPECHECK_ASSERT(this->registeredTypeVars.find(T0.symbol()) != this->registeredTypeVars.end(), "Must create type var before using.");
-    TYPECHECK_ASSERT(type.has_raw() || type.has_func(), "Must insert valid type.");
+    TYPECHECK_ASSERT(type.has_generic() || type.has_func(), "Must insert valid type.");
 
     constraint.mutable_explicit()->mutable_var()->CopyFrom(T0);
     constraint.mutable_explicit()->mutable_type()->CopyFrom(type);
+
+#ifdef TYPECHECK_PRINT_DEBUG_CONSTRAINTS
+    std::cout << debug_constraint_headers(constraint) << std::endl;
+#endif
+
+    this->constraints.emplace_back(constraint);
+    return constraint.id();
+}
+
+auto TypeManager::CreateArrayElementConstraint(const TypeVar& arrayVar, const TypeVar& elementVar) -> Constraint::IDType {
+    auto constraint = getNewBlankConstraint(ConstraintKind::ArrayElement, this->constraint_generator.next_id());
+
+    TYPECHECK_ASSERT(!arrayVar.symbol().empty(), "Cannot use empty type when creating constraint.");
+    TYPECHECK_ASSERT(this->registeredTypeVars.find(arrayVar.symbol()) != this->registeredTypeVars.end(), "Must create type var before using.");
+    TYPECHECK_ASSERT(!elementVar.symbol().empty(), "Cannot use empty type when creating constraint.");
+    TYPECHECK_ASSERT(this->registeredTypeVars.find(elementVar.symbol()) != this->registeredTypeVars.end(), "Must create type var before using.");
+
+    constraint.mutable_types()->mutable_first()->CopyFrom(arrayVar);
+    constraint.mutable_types()->mutable_second()->CopyFrom(elementVar);
+
+    // Track the array-element relationship
+    this->arrayElementMap[arrayVar.symbol()] = elementVar.symbol();
 
 #ifdef TYPECHECK_PRINT_DEBUG_CONSTRAINTS
     std::cout << debug_constraint_headers(constraint) << std::endl;

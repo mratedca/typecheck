@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RawType.hpp"
+#include "GenericType.hpp"
 #include "FunctionDefinition.hpp"
 
 #include <variant>
@@ -9,7 +9,7 @@ namespace typecheck {
 	class Type {
 	public:
 		Type();
-		Type(const RawType& r);
+		Type(const GenericType& g);
 		Type(const FunctionDefinition& f);
 		~Type() = default;
 
@@ -22,11 +22,11 @@ namespace typecheck {
 
 		auto CopyFrom(const Type& other) -> Type&;
 
-		auto has_raw() const -> bool;
+		auto has_generic() const -> bool;
 		auto has_func() const -> bool;
 
-		auto mutable_raw() -> RawType*;
-		auto raw() const -> const RawType&;
+		auto mutable_generic() -> GenericType*;
+		auto generic() const -> const GenericType&;
 
 		auto mutable_func() -> FunctionDefinition*;
 		auto func() const -> const FunctionDefinition&;
@@ -34,6 +34,6 @@ namespace typecheck {
 		auto ShortDebugString() const -> std::string;
 	private:
 		// Variant defaults to the first type
-		mutable std::variant<bool, RawType, FunctionDefinition> data;
+		mutable std::variant<bool, GenericType, FunctionDefinition> data;
 	};
 }

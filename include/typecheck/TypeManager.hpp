@@ -51,6 +51,7 @@ namespace typecheck {
         auto CreateApplicableFunctionConstraint(const Constraint::IDType& functionid, const FunctionVar& type) -> Constraint::IDType;
         auto CreateBindFunctionConstraint( const Constraint::IDType& functionid, const TypeVar& T0, const std::vector<TypeVar>& args, const TypeVar& returnType) -> Constraint::IDType;
         auto CreateBindToConstraint(const typecheck::TypeVar& T0, const typecheck::Type& type) -> Constraint::IDType;
+        auto CreateArrayElementConstraint(const TypeVar& arrayVar, const TypeVar& elementVar) -> Constraint::IDType;
 
         [[nodiscard]] auto getConstraint(Constraint::IDType id) const -> const Constraint*;
 
@@ -62,6 +63,7 @@ namespace typecheck {
 		std::set<std::string> registeredTypeVars;
 		std::map<std::string, std::set<std::string>> convertible;
 		std::vector<FunctionVar> functions;
+		std::map<std::string, std::string> arrayElementMap; // Maps array type var to element type var
 
 		GenericTypeGenerator type_generator;
 		GenericTypeGenerator constraint_generator;

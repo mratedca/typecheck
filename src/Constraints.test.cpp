@@ -38,11 +38,11 @@ NEW_TEST(ConstraintTest, SolveBasicTypeIntEqualsConstraint) {
     const auto solution = tm.solve();
     CPPTEST_ASSERT_THAT(solution.has_value());
 
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T1).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T2).has_raw());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T1).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T2).has_generic());
 
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T1).raw().name(), "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T2).raw().name(), "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T1).generic().name(), "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T2).generic().name(), "int");
 }
 
 NEW_TEST(ConstraintTest, SolveBasicTypeFloatEqualsConstraint) {
@@ -58,11 +58,11 @@ NEW_TEST(ConstraintTest, SolveBasicTypeFloatEqualsConstraint) {
     const auto solution = tm.solve();
     CPPTEST_ASSERT_THAT(solution.has_value());
 
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T1).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T2).has_raw());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T1).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T2).has_generic());
 
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T1).raw().name(), "float");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T2).raw().name(), "float");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T1).generic().name(), "float");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T2).generic().name(), "float");
 }
 
 NEW_TEST(ConstraintTest, SolveBasicTypeEqualsMutuallyRecursiveConstraint) {
@@ -178,8 +178,8 @@ NEW_TEST(ConstraintTest, SolveConvertibleConversionExplicitConstraint) {
     const auto solution = tm.solve();
     CPPTEST_ASSERT_THAT(solution.has_value());
 
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T1).raw().name(), "float");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T2).raw().name(), "float");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T1).generic().name(), "float");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T2).generic().name(), "float");
 }
 
 NEW_TEST(ConstraintTest, SolveFunctionApplicationConstraint) {
@@ -196,13 +196,13 @@ NEW_TEST(ConstraintTest, SolveFunctionApplicationConstraint) {
     CPPTEST_ASSERT_THAT(solution.has_value());
 
     CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(0)).has_func());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(1)).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(2)).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(3)).has_raw());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(1)).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(2)).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(3)).has_generic());
 
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(1)).raw().name(), "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(2)).raw().name(), "float");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(3)).raw().name(), "double");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(1)).generic().name(), "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(2)).generic().name(), "float");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(3)).generic().name(), "double");
 }
 
 NEW_TEST(ConstraintTest, SolveInferredFunctionApplicationConstraint) {
@@ -224,13 +224,13 @@ NEW_TEST(ConstraintTest, SolveInferredFunctionApplicationConstraint) {
     CPPTEST_ASSERT_THAT(solution.has_value());
 
     CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(0)).has_func());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(1)).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(2)).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(3)).has_raw());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(1)).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(2)).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(3)).has_generic());
 
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(1)).raw().name(), "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(2)).raw().name(), "float");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(3)).raw().name(), "double");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(1)).generic().name(), "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(2)).generic().name(), "float");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(3)).generic().name(), "double");
 }
 
 NEW_TEST(ConstraintTest, SolveInferredFunctionApplicationConstraintNoArgs) {
@@ -250,11 +250,11 @@ NEW_TEST(ConstraintTest, SolveInferredFunctionApplicationConstraintNoArgs) {
     CPPTEST_ASSERT_THAT(solution.has_value());
 
     CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(0)).has_func());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(1)).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(2)).has_raw());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(1)).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(2)).has_generic());
 
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(1)).raw().name(), "double");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(2)).raw().name(), "double");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(1)).generic().name(), "double");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(2)).generic().name(), "double");
 }
 
 NEW_TEST(ConstraintTest, SolveFunctionDifferentNumArgsApplicationConstraint) {
@@ -276,19 +276,19 @@ NEW_TEST(ConstraintTest, SolveFunctionDifferentNumArgsApplicationConstraint) {
     const auto solution = tm.solve();
     CPPTEST_ASSERT_THAT(solution.has_value());
     CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(0)).has_func());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(1)).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(2)).has_raw());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(1)).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(2)).has_generic());
 
     // Check it got bound to: func foo(a: Int) -> Double
     CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(0)).func().args_size(), 1);
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(0)).func().args(0).has_raw());
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(0)).func().args(0).raw().name(), "int");
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(0)).func().args(0).has_generic());
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(0)).func().args(0).generic().name(), "int");
     CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(0)).func().has_returntype());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(0)).func().returntype().has_raw());
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(0)).func().returntype().raw().name(), "double");
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(0)).func().returntype().has_generic());
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(0)).func().returntype().generic().name(), "double");
 
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(1)).raw().name(), "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(2)).raw().name(), "double");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(1)).generic().name(), "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(2)).generic().name(), "double");
 }
 
 NEW_TEST(ConstraintTest, SolveFunctionSameNumArgsDifferentTypeApplicationConstraint) {
@@ -311,19 +311,19 @@ NEW_TEST(ConstraintTest, SolveFunctionSameNumArgsDifferentTypeApplicationConstra
     const auto solution = tm.solve();
     CPPTEST_ASSERT_THAT(solution.has_value());
     CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(0)).has_func());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(1)).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(2)).has_raw());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(1)).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(2)).has_generic());
 
     // Check it got bound to: func foo(a: Int) -> Double
     CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(0)).func().args_size(), 1);
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(0)).func().args(0).has_raw());
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(0)).func().args(0).raw().name(), "int");
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(0)).func().args(0).has_generic());
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(0)).func().args(0).generic().name(), "int");
     CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(0)).func().has_returntype());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(0)).func().returntype().has_raw());
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(0)).func().returntype().raw().name(), "double");
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(0)).func().returntype().has_generic());
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(0)).func().returntype().generic().name(), "double");
 
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(1)).raw().name(), "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(2)).raw().name(), "double");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(1)).generic().name(), "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(2)).generic().name(), "double");
 }
 
 NEW_TEST(ConstraintTest, SolveFunctionInferArgsLaterConstraint) {
@@ -354,12 +354,12 @@ NEW_TEST(ConstraintTest, SolveFunctionInferArgsLaterConstraint) {
     const auto solution = tm.solve();
     CPPTEST_ASSERT_THAT(solution.has_value());
     CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(8)).has_func());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(7)).has_raw());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(7)).has_generic());
 
     // Check it got bound to: func foo() -> Int
     CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(8)).func().has_returntype());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(8)).func().returntype().has_raw());
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(8)).func().returntype().raw().name(), "int");
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(8)).func().returntype().has_generic());
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(8)).func().returntype().generic().name(), "int");
 }
 
 NEW_TEST(ConstraintTest, SolveForLoopConstraintsRegression) {
@@ -383,19 +383,19 @@ NEW_TEST(ConstraintTest, SolveForLoopConstraintsRegression) {
 
     const auto solution = tm.solve();
     CPPTEST_ASSERT_THAT(solution.has_value());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T0).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T3).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T4).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T5).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T7).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T9).has_raw());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T0).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T3).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T4).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T5).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T7).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T9).has_generic());
 
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T0).raw().name(), "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T3).raw().name(), "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T4).raw().name(), "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T5).raw().name(), "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T7).raw().name(), "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T9).raw().name(), "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T0).generic().name(), "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T3).generic().name(), "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T4).generic().name(), "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T5).generic().name(), "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T7).generic().name(), "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T9).generic().name(), "int");
 }
 
 NEW_TEST(ConstraintTest, SolveForLoopConstraints) {
@@ -433,33 +433,33 @@ NEW_TEST(ConstraintTest, SolveForLoopConstraints) {
 
     const auto solution = tm.solve();
     CPPTEST_ASSERT_THAT(solution.has_value());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T0).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T1).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T2).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T3).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T4).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T5).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T6).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T7).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T8).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T9).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T10).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T11).has_raw());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T12).has_raw());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T0).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T1).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T2).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T3).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T4).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T5).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T6).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T7).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T8).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T9).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T10).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T11).has_generic());
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T12).has_generic());
 
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T0).raw().name(), "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T1).raw().name(), "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T2).raw().name(), "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T3).raw().name(), "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T4).raw().name(), "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T5).raw().name(), "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T6).raw().name(), "bool");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T7).raw().name(), "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T8).raw().name(), "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T9).raw().name(), "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T10).raw().name(), "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T11).raw().name(), "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T12).raw().name(), "void");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T0).generic().name(), "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T1).generic().name(), "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T2).generic().name(), "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T3).generic().name(), "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T4).generic().name(), "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T5).generic().name(), "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T6).generic().name(), "bool");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T7).generic().name(), "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T8).generic().name(), "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T9).generic().name(), "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T10).generic().name(), "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T11).generic().name(), "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T12).generic().name(), "void");
 }
 
 NEW_TEST(ConstraintTest, MultipleIndependentStatements) {
@@ -525,24 +525,24 @@ NEW_TEST(ConstraintTest, MutuallyRecursiveSolveForLoopConstraints) {
     const auto solution = tm.solve();
     CPPTEST_ASSERT_THAT(solution.has_value());
     for (std::size_t i = 0; i < 16; ++i) {
-        CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(i)).has_raw());
+        CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(i)).has_generic());
     }
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(0)).raw().name() , "void");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(1)).raw().name() , "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(2)).raw().name() , "void");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(3)).raw().name() , "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(4)).raw().name() , "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(5)).raw().name() , "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(6)).raw().name() , "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(7)).raw().name() , "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(8)).raw().name() , "bool");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(9)).raw().name() , "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(10)).raw().name() , "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(11)).raw().name() , "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(12)).raw().name() , "void");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(13)).raw().name() , "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(14)).raw().name() , "int");
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(15)).raw().name() , "void");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(0)).generic().name() , "void");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(1)).generic().name() , "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(2)).generic().name() , "void");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(3)).generic().name() , "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(4)).generic().name() , "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(5)).generic().name() , "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(6)).generic().name() , "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(7)).generic().name() , "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(8)).generic().name() , "bool");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(9)).generic().name() , "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(10)).generic().name() , "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(11)).generic().name() , "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(12)).generic().name() , "void");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(13)).generic().name() , "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(14)).generic().name() , "int");
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(15)).generic().name() , "void");
 }
 
 NEW_TEST(ConstraintTest, RegressionTest1Constraints) {
@@ -573,8 +573,8 @@ NEW_TEST(ConstraintTest, RegressionTest1Constraints) {
     tm.CreateLiteralConformsToConstraint(T.at(22), typecheck::KnownProtocolKind::ExpressibleByInteger);
     const auto solution = tm.solve();
     CPPTEST_ASSERT_THAT(solution.has_value());
-    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(11)).has_raw());
-    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(11)).raw().name() , "int");
+    CPPTEST_ASSERT_THAT(solution->GetResolvedType(T.at(11)).has_generic());
+    CPPTEST_EXPECT_EQ(solution->GetResolvedType(T.at(11)).generic().name() , "int");
 }
 
 NEW_TEST(ConstraintTest, RegressionTest2ConstraintsAckerman) {
@@ -723,3 +723,100 @@ CREATE_STRESS_TEST(200)
 CREATE_STRESS_TEST(300)
 CREATE_STRESS_TEST(400)
 CREATE_STRESS_TEST(800)
+
+// ArrayElement constraint tests
+NEW_TEST(ConstraintTest, SolveSimpleArrayConstraint) {
+    getDefaultTypeManager(tm);
+    
+    // Create: arrayVar = Array<elementVar>, elementVar = int
+    auto arrayVar = tm.CreateTypeVar();
+    auto elementVar = tm.CreateTypeVar();
+    
+    tm.CreateArrayElementConstraint(arrayVar, elementVar);
+    tm.CreateBindToConstraint(elementVar, tm.getRegisteredType("int"));
+    
+    const auto solution = tm.solve();
+    CPPTEST_ASSERT_THAT(solution.has_value());
+    
+    // arrayVar should resolve to Array<int>
+    const auto resolvedArray = solution->GetResolvedType(arrayVar);
+    CPPTEST_ASSERT_THAT(resolvedArray.has_generic());
+    CPPTEST_EXPECT_EQ(resolvedArray.generic().name(), "Array");
+    CPPTEST_EXPECT_EQ(resolvedArray.generic().type_params_size(), 1);
+    CPPTEST_ASSERT_THAT(resolvedArray.generic().type_params(0).has_generic());
+    CPPTEST_EXPECT_EQ(resolvedArray.generic().type_params(0).generic().name(), "int");
+}
+
+NEW_TEST(ConstraintTest, SolveArrayWithInferredElementType) {
+    getDefaultTypeManager(tm);
+    
+    // Create: arrayVar = Array<elementVar>, 
+    //         expr1Var = elementVar, expr2Var = elementVar
+    //         expr1Var = int, expr2Var = int
+    auto arrayVar = tm.CreateTypeVar();
+    auto elementVar = tm.CreateTypeVar();
+    auto expr1Var = tm.CreateTypeVar();
+    auto expr2Var = tm.CreateTypeVar();
+    
+    tm.CreateArrayElementConstraint(arrayVar, elementVar);
+    tm.CreateEqualsConstraint(expr1Var, elementVar);
+    tm.CreateEqualsConstraint(expr2Var, elementVar);
+    tm.CreateBindToConstraint(expr1Var, tm.getRegisteredType("int"));
+    tm.CreateBindToConstraint(expr2Var, tm.getRegisteredType("int"));
+    
+    const auto solution = tm.solve();
+    CPPTEST_ASSERT_THAT(solution.has_value());
+    
+    const auto resolvedArray = solution->GetResolvedType(arrayVar);
+    CPPTEST_EXPECT_EQ(resolvedArray.generic().name(), "Array");
+    CPPTEST_EXPECT_EQ(resolvedArray.generic().type_params(0).generic().name(), "int");
+}
+
+NEW_TEST(ConstraintTest, SolveNestedArray) {
+    getDefaultTypeManager(tm);
+    
+    // Array<Array<int>>
+    auto outerArrayVar = tm.CreateTypeVar();
+    auto innerArrayVar = tm.CreateTypeVar();
+    auto elementVar = tm.CreateTypeVar();
+    
+    tm.CreateArrayElementConstraint(outerArrayVar, innerArrayVar);
+    tm.CreateArrayElementConstraint(innerArrayVar, elementVar);
+    tm.CreateBindToConstraint(elementVar, tm.getRegisteredType("int"));
+    
+    const auto solution = tm.solve();
+    CPPTEST_ASSERT_THAT(solution.has_value());
+    
+    const auto resolvedOuter = solution->GetResolvedType(outerArrayVar);
+    CPPTEST_EXPECT_EQ(resolvedOuter.generic().name(), "Array");
+    CPPTEST_ASSERT_THAT(resolvedOuter.generic().type_params(0).has_generic());
+    CPPTEST_EXPECT_EQ(resolvedOuter.generic().type_params(0).generic().name(), "Array");
+    CPPTEST_ASSERT_THAT(resolvedOuter.generic().type_params(0).generic().type_params(0).has_generic());
+    CPPTEST_EXPECT_EQ(resolvedOuter.generic().type_params(0).generic().type_params(0).generic().name(), "int");
+}
+
+NEW_TEST(ConstraintTest, SolveArrayFromLiteralElements) {
+    getDefaultTypeManager(tm);
+    
+    // Simulating [1, 2, 3] -> Array<int>
+    auto arrayVar = tm.CreateTypeVar();
+    auto elementVar = tm.CreateTypeVar();
+    auto literal1 = tm.CreateTypeVar();
+    auto literal2 = tm.CreateTypeVar();
+    auto literal3 = tm.CreateTypeVar();
+    
+    tm.CreateArrayElementConstraint(arrayVar, elementVar);
+    tm.CreateLiteralConformsToConstraint(literal1, typecheck::KnownProtocolKind::ExpressibleByInteger);
+    tm.CreateLiteralConformsToConstraint(literal2, typecheck::KnownProtocolKind::ExpressibleByInteger);
+    tm.CreateLiteralConformsToConstraint(literal3, typecheck::KnownProtocolKind::ExpressibleByInteger);
+    tm.CreateEqualsConstraint(literal1, elementVar);
+    tm.CreateEqualsConstraint(literal2, elementVar);
+    tm.CreateEqualsConstraint(literal3, elementVar);
+    
+    const auto solution = tm.solve();
+    CPPTEST_ASSERT_THAT(solution.has_value());
+    
+    const auto resolvedArray = solution->GetResolvedType(arrayVar);
+    CPPTEST_EXPECT_EQ(resolvedArray.generic().name(), "Array");
+    CPPTEST_EXPECT_EQ(resolvedArray.generic().type_params(0).generic().name(), "int");
+}
