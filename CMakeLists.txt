@@ -122,7 +122,7 @@ if (NOT TARGET cppnotstdlib)
 	add_subdirectory(third_party/cppnotstdlib)
 endif()
 
-if (NOT TARGET magic_enum)
+if (NOT TARGET magic_enum::magic_enum)
 	message(STATUS "Adding magic_enum from typecheck")
 	add_subdirectory(third_party/magic_enum EXCLUDE_FROM_ALL)
 endif()
