@@ -19,6 +19,9 @@ namespace typecheck {
 		auto operator=(Type&& other) noexcept -> Type&;
 
 		auto operator==(const Type& other) const noexcept -> bool;
+		auto operator!=(const Type& other) const noexcept -> bool {
+			return !(*this == other);
+		}
 
 		auto CopyFrom(const Type& other) -> Type&;
 

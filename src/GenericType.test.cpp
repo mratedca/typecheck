@@ -136,3 +136,4 @@ NEW_TEST(GenericTypeTest, CopyFrom) {
     CPPTEST_EXPECT_EQ(copiedType, arrayType);
 }
 
+CPPTEST_END_CLASS(GenericTypeTest)

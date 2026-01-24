@@ -1,6 +1,7 @@
 .idea/
 build_make/
 .cache/
+bazel-*
 
 .vs/
 CMakeSettings.json

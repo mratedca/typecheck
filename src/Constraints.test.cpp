@@ -820,3 +820,5 @@ NEW_TEST(ConstraintTest, SolveArrayFromLiteralElements) {
     CPPTEST_EXPECT_EQ(resolvedArray.generic().name(), "Array");
     CPPTEST_EXPECT_EQ(resolvedArray.generic().type_params(0).generic().name(), "int");
 }
+
+CPPTEST_END_CLASS(ConstraintTest)
