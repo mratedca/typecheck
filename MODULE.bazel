@@ -11,7 +11,7 @@ bazel_dep(name = "cpptest")
 git_override(
     module_name = "cpptest",
     remote = "https://github.com/mratedca/cpptest.git",
-    commit = "141c5af0f5d3373274d3e0719a0b08f1b43b076a")
+    commit = "eb5234b01c44c5df0826dcfa6494670fa5ef156e")
 
 bazel_dep(name = "coreservices")
 git_override(
@@ -35,7 +35,7 @@ bazel_dep(name = "constraint")
 git_override(
     module_name = "constraint",
     remote = "https://github.com/mratedca/constraint",
-    commit = "15f1be2c335c04b9284d3ea3fa4df362de7058d5")
+    commit = "201278378684d69fb59fe0bd87fbfe19d4c5ef9d")
 
 bazel_dep(name = "fast_float", version = "8.0.2")
 
