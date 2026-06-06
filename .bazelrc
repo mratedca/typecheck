@@ -1,0 +1,31 @@
+build --enable_platform_specific_config
+
+# Register the hermetic LLVM toolchain on linux/windows only (not macOS, where
+# registering it breaks Apple/iOS builds). Targets carry -std=c++20 via copts.
+common:linux --extra_toolchains=@llvm_toolchain//:all
+common:windows --extra_toolchains=@llvm_toolchain//:all
+
+build:ci --build_metadata=ROLE=CI
+build:ci --bes_results_url=https://app.buildbuddy.io/invocation/
+build:ci --bes_backend=grpcs://remote.buildbuddy.io
+build:ci --remote_cache_compression
+build:ci --remote_cache=grpcs://remote.buildbuddy.io
+build:ci --remote_download_outputs=minimal
+build:ci --remote_timeout=10m
+build:ci --remote_executor=grpcs://remote.buildbuddy.io
+build:ci --jobs=500
+build:ci --local_resources=cpu=2
+build:ci --spawn_strategy=remote,local
+build:ci --strategy=TestRunner=local
+build:ci --host_platform=//:docker_image_platform
+
+# Repos using cpptest pull in Swift/Apple rules. Their swift_* targets are
+# incompatible on linux (skipped), but analysis still touches the Linux swift
+# toolchain, which needs a CC target triple; run any swift/link actions locally.
+build:ci --define=CC_TARGET_TRIPLE=x86_64-unknown-linux-gnu
+build:ci --strategy=SwiftCompile=local
+build:ci --strategy=SwiftModuleWrap=local
+build:ci --strategy=SwiftAutolinkExtract=local
+build:ci --strategy=CppLink=local
+
+test --test_output=errors

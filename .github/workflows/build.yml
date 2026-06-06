@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+
+jobs:
+  build:
+    runs-on: self-hosted
+    container:
+      image: ghcr.io/mratedca/bazel:latest
+    steps:
+      - name: Configure Git auth
+        run: git config --global url."https://${{ secrets.CI_PAT }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.CI_PAT }}
+          submodules: true
+      - name: Set mold as the default linker
+        run: ln -sf "/usr/bin/ld.mold" "/usr/bin/ld"
+      - name: Test
+        run: |
+          bazelisk test \
+            --config=ci \
+            --remote_header=x-buildbuddy-api-key=${{ secrets.BUILDBUDDY_ORG_API_KEY }} \
+            //...
