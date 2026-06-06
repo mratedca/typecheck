@@ -51,11 +51,11 @@ bazel_dep(name = "googletest", version = "1.17.0")
 
 # --- CI: hermetic LLVM toolchain + RBE platform support ---
 
-bazel_dep(name = "toolchains_llvm", version = "1.7.0")
+bazel_dep(name = "toolchains_llvm", version = "1.7.0", dev_dependency = True)
 
 LLVM_VERSION = "21.1.8"
 
-llvm_toolchain_ext = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm")
+llvm_toolchain_ext = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm", dev_dependency = True)
 llvm_toolchain_ext.toolchain(
     name = "llvm_toolchain",
     llvm_version = LLVM_VERSION,
