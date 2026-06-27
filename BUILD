@@ -1,7 +1,8 @@
 load("@cpptest//:cpptest.bzl", "cpptest_create")
-load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@coreservices//buildenv:cc_rules.bzl", "mratedca_cc_library")
+load("@hedron_compile_commands//:refresh_compile_commands.bzl", "refresh_compile_commands")
 
-cc_library(
+mratedca_cc_library(
     name = "typecheck",
     srcs = glob([
         "src/**/*.cpp",
@@ -22,6 +23,11 @@ cc_library(
 cpptest_create(
     name = "typecheck",
     srcs = glob(["src/**/*.test.cpp"]),
+)
+
+refresh_compile_commands(
+    name = "refresh_compile_commands",
+    targets = {"//:all": ""},
 )
 
 # Remote-execution platform for CI (--config=ci --host_platform=...).
