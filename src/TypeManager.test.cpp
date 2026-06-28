@@ -1,5 +1,5 @@
-#include "cpptest/cpptest.hpp"
 #include "Utils.test.hpp"
+#include "cpptest/cpptest.hpp"
 
 class TypeManagerTest : public cpptest::BaseCppTest {
 public:
@@ -16,7 +16,7 @@ CPPTEST_CLASS(TypeManagerTest)
 
 NEW_TEST(TypeManagerTest, CreateFunctionhasNoArgs) {
     typecheck::TypeManager tm;
-    CPPTEST_EXPECT_NEQ(tm.CreateFunctionHash("foo", {}),  0);
+    CPPTEST_EXPECT_NEQ(tm.CreateFunctionHash("foo", {}), 0);
 }
 
 NEW_TEST(TypeManagerTest, CreateLambdaHashNoArgs) {
@@ -41,7 +41,7 @@ NEW_TEST(TypeManagerTest, CreateFunctionHash2Args) {
 
 NEW_TEST(TypeManagerTest, CreateLambdaHash2Args) {
     typecheck::TypeManager tm;
-    CPPTEST_EXPECT_NEQ(tm.CreateLambdaFunctionHash({"a", "b"}) , 0);
+    CPPTEST_EXPECT_NEQ(tm.CreateLambdaFunctionHash({"a", "b"}), 0);
 }
 
 NEW_TEST(TypeManagerTest, LoadBasicTypes) {

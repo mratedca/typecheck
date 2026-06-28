@@ -1,11 +1,4 @@
-#include "typecheck/TypeManager.hpp"
-#include "typecheck/Constraint.hpp"           // for ConstraintKind
-#include "typecheck/Debug.hpp"
-#include "typecheck/GenericTypeGenerator.hpp"       // for GenericTypeGene...
-#include "typecheck/Type.hpp"                 // for Type, TypeVar
-#include "typecheck/protocols/ExpressibleByDoubleLiteral.hpp"
-#include "typecheck/protocols/ExpressibleByFloatLiteral.hpp"
-#include "typecheck/protocols/ExpressibleByIntegerLiteral.hpp"
+#include "cppnotstdlib/strings.hpp"
 
 #include "constraint/Domain.hpp"
 #include "constraint/Env.hpp"
@@ -13,20 +6,26 @@
 #include "constraint/Solver.hpp"
 #include "constraint/State.hpp"
 #include "constraint/StateQuery.hpp"
-
-#include "cppnotstdlib/strings.hpp"
+#include "typecheck/Constraint.hpp" // for ConstraintKind
+#include "typecheck/Debug.hpp"
+#include "typecheck/GenericTypeGenerator.hpp" // for GenericTypeGene...
+#include "typecheck/Type.hpp"                 // for Type, TypeVar
+#include "typecheck/TypeManager.hpp"
+#include "typecheck/protocols/ExpressibleByDoubleLiteral.hpp"
+#include "typecheck/protocols/ExpressibleByFloatLiteral.hpp"
+#include "typecheck/protocols/ExpressibleByIntegerLiteral.hpp"
 
 #include <cassert>
 #include <iostream>
-#include <limits>                                     // for numeric_limits
+#include <limits> // for numeric_limits
 #include <list>
 #include <optional>
 #include <queue>
-#include <sstream>                                    // for std::stringstream
+#include <sstream> // for std::stringstream
 #include <stdexcept>
-#include <string>                                     // for std::string
-#include <type_traits>                                // for move
-#include <utility>                                    // for make_pair
+#include <string>      // for std::string
+#include <type_traits> // for move
+#include <utility>     // for make_pair
 
 typecheck::TypeManager::TypeManager() = default;
 
@@ -37,14 +36,14 @@ auto typecheck::TypeManager::registerType(const std::string& name) -> bool {
 }
 
 auto typecheck::TypeManager::registerType(const Type& name) -> bool {
-	// Determine if has type
-	const auto alreadyHasType = this->hasRegisteredType(name);
-	if (!alreadyHasType) {
-		Type type;
-		type.CopyFrom(name);
-		this->registeredTypes.emplace_back(type);
-	}
-	return !alreadyHasType;
+    // Determine if has type
+    const auto alreadyHasType = this->hasRegisteredType(name);
+    if (!alreadyHasType) {
+        Type type;
+        type.CopyFrom(name);
+        this->registeredTypes.emplace_back(type);
+    }
+    return !alreadyHasType;
 }
 
 auto typecheck::TypeManager::hasRegisteredType(const std::string& name) const noexcept -> bool {
@@ -64,13 +63,13 @@ auto typecheck::TypeManager::getRegisteredType(const std::string& name) const no
 }
 
 auto typecheck::TypeManager::getRegisteredType(const Type& name) const noexcept -> Type {
-	for (const auto& type : this->registeredTypes) {
+    for (const auto& type : this->registeredTypes) {
         if (type == name) {
-			return type;
-		}
-	}
+            return type;
+        }
+    }
 
-	return {};
+    return {};
 }
 
 auto typecheck::TypeManager::getFunctionOverloads(Constraint::IDType funcID) const -> std::vector<FunctionVar> {
@@ -113,22 +112,22 @@ auto typecheck::TypeManager::CreateLambdaFunctionHash(const std::vector<std::str
 
 auto typecheck::TypeManager::setConvertible(const Type& T0, const Type& T1) -> bool {
     if (T0 == T1) {
-		return true;
-	}
+        return true;
+    }
 
-	const auto& t0_ptr = this->getRegisteredType(T0);
-	const auto& t1_ptr = this->getRegisteredType(T1);
+    const auto& t0_ptr = this->getRegisteredType(T0);
+    const auto& t1_ptr = this->getRegisteredType(T1);
 
     // Function types not convertible
     if (t0_ptr.has_func() || t1_ptr.has_func()) {
         // Functions not convertible to each other
         return false;
     } else if (!t0_ptr.generic().name().empty() && !t1_ptr.generic().name().empty() && this->convertible[t0_ptr.generic().name()].find(t1_ptr.generic().name()) == this->convertible[t0_ptr.generic().name()].end()) {
-		// Convertible from T0 -> T1
+        // Convertible from T0 -> T1
         this->convertible[t0_ptr.generic().name()].insert(t1_ptr.generic().name());
-		return true;
-	}
-	return false;
+        return true;
+    }
+    return false;
 }
 
 auto typecheck::TypeManager::isConvertible(const std::string& T0, const std::string& T1) const noexcept -> bool {
@@ -152,20 +151,20 @@ auto typecheck::TypeManager::isConvertible(const Type& T0, const Type& T1) const
     }
 
     if (T0 == T1) {
-		return true;
-	}
+        return true;
+    }
 
     // Because they're not functions, they must both be raw.
     if (this->convertible.find(T0.generic().name()) == this->convertible.end()) {
-		// T0 is not in the map, meaning the conversion won't be there.
-		return false;
-	}
+        // T0 is not in the map, meaning the conversion won't be there.
+        return false;
+    }
 
     if (this->convertible.at(T0.generic().name()).find(T1.generic().name()) != this->convertible.at(T0.generic().name()).end()) {
-		// Convertible from T0 -> T1
-		return true;
-	}
-	return false;
+        // Convertible from T0 -> T1
+        return true;
+    }
+    return false;
 }
 
 auto typecheck::TypeManager::getConvertible(const Type& T0) const -> std::vector<Type> {
@@ -189,13 +188,13 @@ auto typecheck::TypeManager::getConvertible(const Type& T0) const -> std::vector
 }
 
 auto typecheck::TypeManager::CreateTypeVar() -> const TypeVar {
-	const auto var = this->type_generator.next();
+    const auto var = this->type_generator.next();
 
-	this->registeredTypeVars.insert(var);
+    this->registeredTypeVars.insert(var);
 
-	TypeVar type;
-	type.set_symbol(var);
-	return type;
+    TypeVar type;
+    type.set_symbol(var);
+    return type;
 }
 
 auto typecheck::TypeManager::getConstraintInternal(const Constraint::IDType id) -> Constraint* {
@@ -209,13 +208,13 @@ auto typecheck::TypeManager::getConstraintInternal(const Constraint::IDType id) 
 }
 
 auto typecheck::TypeManager::getConstraint(const Constraint::IDType id) const -> const Constraint* {
-	for (const auto& constraint : this->constraints) {
-		if (constraint.id() == id) {
-			return &constraint;
-		}
-	}
+    for (const auto& constraint : this->constraints) {
+        if (constraint.id() == id) {
+            return &constraint;
+        }
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 namespace {
@@ -223,12 +222,12 @@ namespace {
         // Check if it's an array type: "Array[elementType]"
         if (val.rfind("Array[", 0) == 0 && val.back() == ']') {
             // Extract element type from "Array[elementType]"
-            const auto elementTypeName = val.substr(6, val.size() - 7);  // Skip "Array[" and "]"
+            const auto elementTypeName = val.substr(6, val.size() - 7); // Skip "Array[" and "]"
             typecheck::GenericType arrayType("Array");
             arrayType.add_type_param()->CopyFrom(TypeFromString(elementTypeName, sol));
             return {arrayType};
         }
-        
+
         if (cppnotstdlib::string::explode(val, '|').size() == 1) {
             return {typecheck::GenericType(val)};
         } else {
@@ -247,7 +246,7 @@ namespace {
 
             funcDef.mutable_returntype()->CopyFrom(TypeFromString(lookupReturnVar, sol));
             for (const auto& a : fvar.args()) {
-                const auto foundVariable = a.symbol(); 
+                const auto foundVariable = a.symbol();
                 const auto resolvedVariable = sol.At(foundVariable).to_string();
 
                 // Prevent infinite loops.
@@ -278,8 +277,7 @@ namespace {
 
     using distance_type = std::function<std::size_t(const constraint::State&)>;
 
-    template<typename T>
-    void AddLiteralProtocolTypes(constraint::Domain::data_type& domain) {
+    template <typename T> void AddLiteralProtocolTypes(constraint::Domain::data_type& domain) {
         T protocol;
         for (const auto& ty : protocol.getPreferredTypes()) {
             AddTypeToDomain(domain, ty);
@@ -290,8 +288,7 @@ namespace {
         }
     }
 
-    template<typename T>
-    void AddHeuristicProtocolFuncs(std::vector<constraint::Solver::DistanceFunc>& heuristics, std::vector<constraint::Solver::DistanceFunc>& actuals, const std::string& var) {
+    template <typename T> void AddHeuristicProtocolFuncs(std::vector<constraint::Solver::DistanceFunc>& heuristics, std::vector<constraint::Solver::DistanceFunc>& actuals, const std::string& var) {
         heuristics.emplace_back([var](const constraint::StateQuery& state) {
             T protocol;
             if (state.IsAssigned(var)) {
@@ -357,17 +354,17 @@ auto typecheck::TypeManager::solve() -> std::optional<ConstraintPass> {
             if (types.has_first() && types.has_second()) {
                 const auto& var1 = types.first().symbol();
                 const auto& var2 = types.second().symbol();
-                
+
                 // Check if both have array element constraints
                 auto it1 = this->arrayElementMap.find(var1);
                 auto it2 = this->arrayElementMap.find(var2);
-                
+
                 if (it1 != this->arrayElementMap.end() && it2 != this->arrayElementMap.end()) {
                     // Both are arrays - add element equality constraint
                     Constraint elemConstraint;
                     elemConstraint.set_kind(ConstraintKind::Equal);
                     elemConstraint.set_id(this->constraint_generator.next_id());
-                    
+
                     TypeVar elem1, elem2;
                     elem1.set_symbol(it1->second);
                     elem2.set_symbol(it2->second);
@@ -378,7 +375,7 @@ auto typecheck::TypeManager::solve() -> std::optional<ConstraintPass> {
             }
         }
     }
-    
+
     // Add the implied constraints
     for (const auto& constraint : impliedConstraints) {
         this->constraints.push_back(constraint);
@@ -418,11 +415,11 @@ auto typecheck::TypeManager::solve() -> std::optional<ConstraintPass> {
                     AddLiteralProtocolTypes<ExpressibleByIntegerLiteral>(domain);
                     AddHeuristicProtocolFuncs<ExpressibleByIntegerLiteral>(heuristcFuncs, distanceFuncs, var);
                     break;
-				case KnownProtocolKind::ExpressibleByArray:
-				case KnownProtocolKind::ExpressibleByBoolean:
-				case KnownProtocolKind::ExpressibleByDictionary:
-				case KnownProtocolKind::ExpressibleByNil:
-				case KnownProtocolKind::ExpressibleByString:
+                case KnownProtocolKind::ExpressibleByArray:
+                case KnownProtocolKind::ExpressibleByBoolean:
+                case KnownProtocolKind::ExpressibleByDictionary:
+                case KnownProtocolKind::ExpressibleByNil:
+                case KnownProtocolKind::ExpressibleByString:
                 default:
                     std::cout << "Unsupported Literal" << std::endl;
                     return std::nullopt;
@@ -465,7 +462,7 @@ auto typecheck::TypeManager::solve() -> std::optional<ConstraintPass> {
                     // First type is array, second is element
                     // Element gets full domain which includes both base types and array types
                     constraint::Domain::data_type elementDomain = varDomain.data();
-                    
+
                     // Also add array types to the element domain to support nested arrays
                     constraint::Domain::data_type arrayTypesForElements;
                     for (const auto& ty : varDomain.data()) {
@@ -473,7 +470,7 @@ auto typecheck::TypeManager::solve() -> std::optional<ConstraintPass> {
                     }
                     elementDomain.insert(elementDomain.end(), arrayTypesForElements.begin(), arrayTypesForElements.end());
                     insert_if_not_exists(type_names.at(1), constraint::Domain(elementDomain));
-                    
+
                     // Array gets domain of Array[T] for each T in the element domain (including nested arrays)
                     constraint::Domain::data_type arrayDomain;
                     for (const auto& ty : elementDomain) {
@@ -513,12 +510,12 @@ auto typecheck::TypeManager::solve() -> std::optional<ConstraintPass> {
                                 // Check if both are arrays - if so, their element types must be equal
                                 const auto firstStr = firstVar.to_string();
                                 const auto currentStr = currentVar.to_string();
-                                
+
                                 if (firstStr.starts_with("Array[") && currentStr.starts_with("Array[")) {
                                     // Extract element types: "Array[ElementType]" -> "ElementType"
                                     auto firstElement = firstStr.substr(6, firstStr.length() - 7);
                                     auto currentElement = currentStr.substr(6, currentStr.length() - 7);
-                                    
+
                                     // Element types must be equal
                                     if (firstElement != currentElement) {
                                         return false;
@@ -537,17 +534,17 @@ auto typecheck::TypeManager::solve() -> std::optional<ConstraintPass> {
                     constraint_solver.AddConstraint(std::vector{type_names}, [type_names](const constraint::Env& env) {
                         const auto arrayVarValue = env.At(type_names.at(0)).to_string();
                         const auto elementVarValue = env.At(type_names.at(1)).to_string();
-                        
+
                         // Check if arrayVar is "Array[elementVar]"
                         const std::string expectedArrayType = "Array[" + elementVarValue + "]";
                         return arrayVarValue == expectedArrayType;
                     });
                     break;
-				case Bind:
-				case BindParam:
-				case BindOverload:
-				case ConformsTo:
-				case ApplicableFunction:
+                case Bind:
+                case BindParam:
+                case BindOverload:
+                case ConformsTo:
+                case ApplicableFunction:
                 default:
                     std::cout << "Unimplemented Constraint Kind: " << constraint.kind() << std::endl;
                     assert(false);
@@ -622,9 +619,7 @@ auto typecheck::TypeManager::solve() -> std::optional<ConstraintPass> {
                         return true;
                     }
 
-                    auto compare_vars = [&env](const TypeVar& vA, const TypeVar& vB) {
-                        return env.At(vA.symbol()).to_string() == env.At(vB.symbol()).to_string();
-                    };
+                    auto compare_vars = [&env](const TypeVar& vA, const TypeVar& vB) { return env.At(vA.symbol()).to_string() == env.At(vB.symbol()).to_string(); };
 
                     // This is the the overload, check everything matches up.
                     if (overload.argvars_size() != funcDefinition.args().size()) {

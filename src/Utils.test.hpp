@@ -1,7 +1,6 @@
 #pragma once
 
 #include "cpptest/cpptest.hpp"
-
 #include "typecheck/GenericTypeGenerator.hpp"
 #include "typecheck/TypeManager.hpp"
 
@@ -27,6 +26,6 @@ static inline auto CreateMultipleSymbols(typecheck::TypeManager& tm, const std::
     return out;
 }
 
-#define getDefaultTypeManager(tm) \
-    typecheck::TypeManager tm; \
+#define getDefaultTypeManager(tm)                                                                                                                                                                                                                        \
+    typecheck::TypeManager tm;                                                                                                                                                                                                                           \
     setupTypeManager(&tm)

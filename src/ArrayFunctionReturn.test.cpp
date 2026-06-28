@@ -1,5 +1,5 @@
-#include "cpptest/cpptest.hpp"
 #include "Utils.test.hpp"
+#include "cpptest/cpptest.hpp"
 
 class ArrayFunctionReturnTest : public cpptest::BaseCppTest {
 public:
@@ -13,24 +13,24 @@ CPPTEST_CLASS(ArrayFunctionReturnTest)
 NEW_TEST(ArrayFunctionReturnTest, EmptyArrayWithExplicitReturnType) {
     getDefaultTypeManager(tm);
     tm.registerType("string");
-    
+
     // Function return type annotation: [String]
     auto returnTypeVar = tm.CreateTypeVar();
     auto returnElementVar = tm.CreateTypeVar();
     tm.CreateArrayElementConstraint(returnTypeVar, returnElementVar);
     tm.CreateBindToConstraint(returnElementVar, tm.getRegisteredType("string"));
-    
+
     // Empty array in return statement: []
     auto emptyArrayVar = tm.CreateTypeVar();
     auto emptyElementVar = tm.CreateTypeVar();
     tm.CreateArrayElementConstraint(emptyArrayVar, emptyElementVar);
-    
+
     // Return statement: empty array equals return type
     tm.CreateEqualsConstraint(emptyArrayVar, returnTypeVar);
-    
+
     const auto solution = tm.solve();
     CPPTEST_ASSERT_THAT(solution.has_value());
-    
+
     auto resolvedEmpty = solution->GetResolvedType(emptyArrayVar);
     CPPTEST_EXPECT_TRUE(resolvedEmpty.has_generic());
     CPPTEST_EXPECT_EQ(resolvedEmpty.generic().name(), "Array");
@@ -40,4 +40,3 @@ NEW_TEST(ArrayFunctionReturnTest, EmptyArrayWithExplicitReturnType) {
 }
 
 CPPTEST_END_CLASS(ArrayFunctionReturnTest)
-

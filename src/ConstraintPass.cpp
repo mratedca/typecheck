@@ -1,11 +1,12 @@
 #include "typecheck/ConstraintPass.hpp"
+
 #include "typecheck/Type.hpp"
-#include "typecheck/TypeVar.hpp"  // for Constraint, ConstraintKind
+#include "typecheck/TypeVar.hpp" // for Constraint, ConstraintKind
 
 #include <iostream>
 
 auto typecheck::ConstraintPass::GetResolvedType(const TypeVar& var) const -> Type {
-	Type type;
+    Type type;
     if (!this->HasResolvedType(var)) {
         std::cout << "Typecheck Error: asking for unresolved type: " << var.symbol() << std::endl;
         return type;

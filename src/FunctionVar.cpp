@@ -1,7 +1,7 @@
+#include "cppnotstdlib/strings.hpp"
+
 #include "typecheck/FunctionVar.hpp"
 #include "typecheck/TypeVar.hpp"
-
-#include "cppnotstdlib/strings.hpp"
 
 #include <sstream>
 
@@ -12,28 +12,28 @@ auto typecheck::FunctionVar::name() const -> std::string {
 }
 
 auto typecheck::FunctionVar::id() const -> long long {
-	return this->_id;
+    return this->_id;
 }
 
 void typecheck::FunctionVar::set_id(const long long id) {
-	this->_id = id;
+    this->_id = id;
 }
 
 auto typecheck::FunctionVar::mutable_returnvar() -> TypeVar* {
-	return &this->_returnVar;
+    return &this->_returnVar;
 }
 
 auto typecheck::FunctionVar::returnvar() const -> const TypeVar& {
-	return this->_returnVar;
+    return this->_returnVar;
 }
 
 auto typecheck::FunctionVar::args() const -> const std::vector<TypeVar>& {
-	return this->_args;
+    return this->_args;
 }
 
 auto typecheck::FunctionVar::add_args() -> TypeVar* {
-	this->_args.emplace_back();
-	return &this->_args.at(this->_args.size() - 1);
+    this->_args.emplace_back();
+    return &this->_args.at(this->_args.size() - 1);
 }
 
 auto typecheck::FunctionVar::serialize() const -> std::string {

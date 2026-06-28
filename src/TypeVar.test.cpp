@@ -1,5 +1,6 @@
-#include "cpptest/cpptest.hpp"
 #include "typecheck/TypeVar.hpp"
+
+#include "cpptest/cpptest.hpp"
 
 class TypeVarTest : public cpptest::BaseCppTest {
 public:
@@ -15,18 +16,18 @@ public:
 CPPTEST_CLASS(TypeVarTest)
 
 NEW_TEST(TypeVarTest, CheckSetString) {
-	typecheck::TypeVar t;
-	t.set_symbol("Hello World");
-	CPPTEST_EXPECT_EQ(t.symbol(), "Hello World");
+    typecheck::TypeVar t;
+    t.set_symbol("Hello World");
+    CPPTEST_EXPECT_EQ(t.symbol(), "Hello World");
 }
 
 NEW_TEST(TypeVarTest, CopyVar) {
-	typecheck::TypeVar t;
-	t.set_symbol("Hello World");
-	typecheck::TypeVar g;
-	g.CopyFrom(t);
-	CPPTEST_EXPECT_EQ(g.symbol(), t.symbol());
-	CPPTEST_EXPECT_EQ(g, t);
+    typecheck::TypeVar t;
+    t.set_symbol("Hello World");
+    typecheck::TypeVar g;
+    g.CopyFrom(t);
+    CPPTEST_EXPECT_EQ(g.symbol(), t.symbol());
+    CPPTEST_EXPECT_EQ(g, t);
 }
 
 CPPTEST_END_CLASS(TypeVarTest)

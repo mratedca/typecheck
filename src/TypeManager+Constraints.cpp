@@ -1,6 +1,6 @@
-#include "typecheck/TypeManager.hpp"
 #include "typecheck/Constraint.hpp"
 #include "typecheck/Debug.hpp"
+#include "typecheck/TypeManager.hpp"
 
 #ifdef TYPECHECK_PRINT_DEBUG_CONSTRAINTS
 #include <iostream>
@@ -12,84 +12,84 @@
 using namespace typecheck;
 
 namespace {
-	auto getNewBlankConstraint(ConstraintKind kind, const long long& id) -> Constraint {
-		Constraint constraint;
-		constraint.set_kind(kind);
-		constraint.set_id(id);
-		return constraint;
-	}
+    auto getNewBlankConstraint(ConstraintKind kind, const long long& id) -> Constraint {
+        Constraint constraint;
+        constraint.set_kind(kind);
+        constraint.set_id(id);
+        return constraint;
+    }
 
 #ifdef TYPECHECK_PRINT_DEBUG_CONSTRAINTS
-	auto debug_constraint_headers(const Constraint& constraint) -> std::string {
+    auto debug_constraint_headers(const Constraint& constraint) -> std::string {
 #ifdef TYPECHECK_PRINT_SHORT_DEBUG
-		return constraint.ShortDebugString();
+        return constraint.ShortDebugString();
 #else
-		return constraint.DebugString();
+        return constraint.DebugString();
 #endif
-	}
+    }
 #endif
 }
 
 auto TypeManager::CreateEqualsConstraint(const TypeVar& t0, const TypeVar& t1) -> Constraint::IDType {
-	auto constraint = getNewBlankConstraint(ConstraintKind::Equal, this->constraint_generator.next_id());
+    auto constraint = getNewBlankConstraint(ConstraintKind::Equal, this->constraint_generator.next_id());
 
-	TYPECHECK_ASSERT(!t0.symbol().empty(), "Cannot use empty type when creating constraint.");
-	TYPECHECK_ASSERT(!t1.symbol().empty(), "Cannot use empty type when creating constraint.");
+    TYPECHECK_ASSERT(!t0.symbol().empty(), "Cannot use empty type when creating constraint.");
+    TYPECHECK_ASSERT(!t1.symbol().empty(), "Cannot use empty type when creating constraint.");
 
-	TYPECHECK_ASSERT(this->registeredTypeVars.find(t0.symbol()) != this->registeredTypeVars.end(), "Must create type var before using.");
-	TYPECHECK_ASSERT(this->registeredTypeVars.find(t1.symbol()) != this->registeredTypeVars.end(), "Must create type var before using.");
+    TYPECHECK_ASSERT(this->registeredTypeVars.find(t0.symbol()) != this->registeredTypeVars.end(), "Must create type var before using.");
+    TYPECHECK_ASSERT(this->registeredTypeVars.find(t1.symbol()) != this->registeredTypeVars.end(), "Must create type var before using.");
 
-	constraint.mutable_types()->mutable_first()->CopyFrom(t0);
-	constraint.mutable_types()->mutable_second()->CopyFrom(t1);
+    constraint.mutable_types()->mutable_first()->CopyFrom(t0);
+    constraint.mutable_types()->mutable_second()->CopyFrom(t1);
 
-	// If both type variables are arrays, also create an Equals constraint between their element types
-	auto t0ElementIt = this->arrayElementMap.find(t0.symbol());
-	auto t1ElementIt = this->arrayElementMap.find(t1.symbol());
-	
-	if (t0ElementIt != this->arrayElementMap.end() && t1ElementIt != this->arrayElementMap.end()) {
-		// Both are arrays, create element equality
-		TypeVar t0Element;
-		t0Element.set_symbol(t0ElementIt->second);
-		TypeVar t1Element;
-		t1Element.set_symbol(t1ElementIt->second);
-		
-		// Recursively create equals constraint for elements
-		// Note: We need to add this constraint first, then add the main constraint
-		// to ensure proper constraint ordering
-		auto elementConstraint = getNewBlankConstraint(ConstraintKind::Equal, this->constraint_generator.next_id());
-		elementConstraint.mutable_types()->mutable_first()->CopyFrom(t0Element);
-		elementConstraint.mutable_types()->mutable_second()->CopyFrom(t1Element);
-		
+    // If both type variables are arrays, also create an Equals constraint between their element types
+    auto t0ElementIt = this->arrayElementMap.find(t0.symbol());
+    auto t1ElementIt = this->arrayElementMap.find(t1.symbol());
+
+    if (t0ElementIt != this->arrayElementMap.end() && t1ElementIt != this->arrayElementMap.end()) {
+        // Both are arrays, create element equality
+        TypeVar t0Element;
+        t0Element.set_symbol(t0ElementIt->second);
+        TypeVar t1Element;
+        t1Element.set_symbol(t1ElementIt->second);
+
+        // Recursively create equals constraint for elements
+        // Note: We need to add this constraint first, then add the main constraint
+        // to ensure proper constraint ordering
+        auto elementConstraint = getNewBlankConstraint(ConstraintKind::Equal, this->constraint_generator.next_id());
+        elementConstraint.mutable_types()->mutable_first()->CopyFrom(t0Element);
+        elementConstraint.mutable_types()->mutable_second()->CopyFrom(t1Element);
+
 #ifdef TYPECHECK_PRINT_DEBUG_CONSTRAINTS
-		std::cout << "Auto-generated element equality: " << debug_constraint_headers(elementConstraint) << std::endl;
+        std::cout << "Auto-generated element equality: " << debug_constraint_headers(elementConstraint) << std::endl;
 #endif
-		this->constraints.emplace_back(elementConstraint);
-	}
+        this->constraints.emplace_back(elementConstraint);
+    }
 
 #ifdef TYPECHECK_PRINT_DEBUG_CONSTRAINTS
     std::cout << debug_constraint_headers(constraint) << std::endl;
 #endif
 
-	this->constraints.emplace_back(constraint);
-	return constraint.id();
+    this->constraints.emplace_back(constraint);
+    return constraint.id();
 }
 
 auto TypeManager::CreateLiteralConformsToConstraint(const TypeVar& t0, const KnownProtocolKind::LiteralProtocol& protocol) -> Constraint::IDType {
-	auto constraint = getNewBlankConstraint(ConstraintKind::ConformsTo, this->constraint_generator.next_id());
+    auto constraint = getNewBlankConstraint(ConstraintKind::ConformsTo, this->constraint_generator.next_id());
 
-	TYPECHECK_ASSERT(!t0.symbol().empty(), "Cannot use empty type when creating constraint.");
-	TYPECHECK_ASSERT(this->registeredTypeVars.find(t0.symbol()) != this->registeredTypeVars.end(), "Must create type var before using.");
+    TYPECHECK_ASSERT(!t0.symbol().empty(), "Cannot use empty type when creating constraint.");
+    TYPECHECK_ASSERT(this->registeredTypeVars.find(t0.symbol()) != this->registeredTypeVars.end(), "Must create type var before using.");
 
-	constraint.mutable_conforms()->mutable_type()->CopyFrom(t0);
-	constraint.mutable_conforms()->mutable_protocol()->set_literal(protocol);
+    constraint.mutable_conforms()->mutable_type()->CopyFrom(t0);
+    constraint.mutable_conforms()->mutable_protocol()->set_literal(protocol);
 
 
 #ifdef TYPECHECK_PRINT_DEBUG_CONSTRAINTS
     std::cout << debug_constraint_headers(constraint) << std::endl;
 #endif
 
-	this->constraints.emplace_back(constraint);
-	return constraint.id();
+    this->constraints.emplace_back(constraint);
+    return constraint.id();
 }
 
 auto TypeManager::CreateConvertibleConstraint(const TypeVar& T0, const TypeVar& T1) -> Constraint::IDType {
