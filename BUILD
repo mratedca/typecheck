@@ -1,7 +1,10 @@
 load("@cpptest//:cpptest.bzl", "cpptest_create")
-load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@coreservices//buildenv:cc_rules.bzl", "mratedca_cc_library")
 
-cc_library(
+mratedca_cc_library(
+    # Not yet formatted to the central style (coreservices .clang-format).
+    clang_tidy = False,
+    format = False,
     name = "typecheck",
     srcs = glob([
         "src/**/*.cpp",
