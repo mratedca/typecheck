@@ -24,6 +24,7 @@ mratedca_cc_library(
 
 cpptest_create(
     name = "typecheck",
+    shared = True,
     srcs = glob(["src/**/*.test.cpp"]),
 )
 
