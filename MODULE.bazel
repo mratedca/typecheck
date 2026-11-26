@@ -23,24 +23,24 @@ bazel_dep(name = "cppnotstdlib")
 git_override(
     module_name = "cppnotstdlib",
     remote = "https://github.com/mratedca/cppnotstdlib",
-    commit = "50c810deb58cb31670bd75988f4f51780ba525a4")
+    commit = "4f4919667011e912220327f51030e7092867a6f1")
 
 bazel_dep(name = "fcpp")
 git_override(
     module_name = "fcpp",
     remote = "https://github.com/mratedca/fcpp",
-    commit = "5d202d1a60f06e107965d97df454948b04f24086")
+    commit = "9375d6bf89a5072df9702708861a76cf65672866")
 
 bazel_dep(name = "constraint")
 git_override(
     module_name = "constraint",
     remote = "https://github.com/mratedca/constraint",
-    commit = "201278378684d69fb59fe0bd87fbfe19d4c5ef9d")
+    commit = "b977a13f3a088be9e2a7841f366b6533809a2f52")
 
 bazel_dep(name = "fast_float", version = "8.0.2")
 
 bazel_dep(name = "utf8proc", version = "2.11.0")
-bazel_dep(name = "magic_enum", version = "0.9.7")
+bazel_dep(name = "magic_enum", version = "0.9.8")
 
 bazel_dep(name = "boost.algorithm", version = "1.89.0.bcr.2")
 bazel_dep(name = "boost.type_index", version = "1.89.0.bcr.2")
@@ -62,3 +62,12 @@ llvm_toolchain_ext.toolchain(
     llvm_version = LLVM_VERSION,
 )
 use_repo(llvm_toolchain_ext, "llvm_toolchain", "llvm_toolchain_llvm")
+
+# cppnotstdlib depends on hedron_compile_commands through a git_override, which only the root
+# module's overrides can satisfy.
+bazel_dep(name = "hedron_compile_commands", dev_dependency = True)
+git_override(
+    module_name = "hedron_compile_commands",
+    commit = "2dc498f24587eccc2752f8a892da004d9baa8318",
+    remote = "https://github.com/hedronvision/bazel-compile-commands-extractor.git",
+)
